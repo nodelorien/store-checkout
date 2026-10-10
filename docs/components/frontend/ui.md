@@ -34,10 +34,10 @@ read-when: building or styling components, changing the theme, responsive behavi
 | Component | MUI base | Notes |
 |---|---|---|
 | `ProductCard` | `Card` | image (fixed aspect ratio), name, description, price, stock chip, CTA. Stock 0 → "Sold out", CTA disabled |
-| `CheckoutDialog` | `Dialog` | `fullScreen` below `sm`; scrollable content, sticky actions; sections "Card" and "Delivery" |
-| `CardForm` | `TextField` | `inputMode="numeric"`, `autoComplete="cc-number|cc-exp|cc-csc|cc-name"`, brand logo as end adornment |
-| `DeliveryForm` | `TextField` | proper `autoComplete` tokens (`name`, `email`, `tel`, `street-address`, `address-level2`…) |
-| `SummaryBackdrop` | `Backdrop` + `Slide` + `Paper` | bottom sheet over a dimmed product page; rows: product, base fee, delivery fee, total; "Pay $X" button; closes on backdrop click only when not paying |
+| `CheckoutDialog` | `Dialog` | `fullScreen` below `sm`; scrollable content, sticky actions; order line with quantity stepper, sections "Card details" and "Delivery details", terms checkbox |
+| `CardForm` | `TextField` | `inputMode="numeric"`, `autoComplete="cc-number|cc-exp|cc-csc|cc-name"`, brand logo as end adornment (`CardBrandLogo`: the only component with literal colours — the card schemes' own) |
+| `DeliveryForm` | `TextField` | `autoComplete` tokens `name`, `email`, `tel`, `address-line1`, `address-line2`, `address-level2`, `address-level1`, `postal-code` |
+| `SummaryBackdrop` | `Backdrop` + `Slide` + `Paper` | bottom sheet (centred card from `sm`) rendered **inside** the `Backdrop`, over the dimmed product page; a `Modal` without its own backdrop wraps it only for portal, focus trap, scroll lock and `Esc`; rows: product, base fee, delivery fee, total; "Pay $X" button; dismissed by backdrop click / `Esc` only when not paying |
 | `TransactionStatus` | `Paper` | icon + title + reference + amounts; see `checkout-flow.md` |
 | `Money` | — | `Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })` from cents |
 

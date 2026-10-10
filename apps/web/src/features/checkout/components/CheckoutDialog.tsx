@@ -254,7 +254,7 @@ export function CheckoutDialog({ product, open }: CheckoutDialogProps) {
             >
               <LockOutlinedIcon sx={{ fontSize: 16 }} aria-hidden />
               <Typography variant="caption">
-                Your card is sent encrypted to the payment gateway. We never store it.
+                Sent encrypted to the payment gateway. We never store your card.
               </Typography>
             </Stack>
           </DialogActions>

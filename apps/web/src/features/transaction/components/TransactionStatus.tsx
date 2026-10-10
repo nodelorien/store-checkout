@@ -54,7 +54,7 @@ function Row({
       <Typography
         component="dt"
         color={strong ? 'text.primary' : 'text.secondary'}
-        sx={{ fontWeight: strong ? 700 : 400 }}
+        sx={{ fontWeight: strong ? 700 : 400, flexShrink: 0 }}
       >
         {label}
       </Typography>
@@ -85,7 +85,7 @@ export function TransactionStatus({
   return (
     <Paper
       variant="outlined"
-      sx={{ maxWidth: 560, mx: 'auto', p: { xs: 2.5, sm: 4 }, borderRadius: 4, minWidth: 0 }}
+      sx={{ maxWidth: 560, mx: 'auto', p: { xs: 2.5, sm: 4 }, borderRadius: 2, minWidth: 0 }}
     >
       <Stack spacing={3}>
         <Stack spacing={1.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
@@ -119,7 +119,10 @@ export function TransactionStatus({
           sx={{ m: 0, p: 2, borderRadius: 2, bgcolor: 'background.default' }}
         >
           <Row label="Reference">
-            <Box component="span" sx={{ fontFamily: 'monospace', overflowWrap: 'anywhere' }}>
+            <Box
+              component="span"
+              sx={{ fontFamily: 'monospace', fontSize: '0.875rem', overflowWrap: 'anywhere' }}
+            >
               {transaction.reference}
             </Box>
           </Row>

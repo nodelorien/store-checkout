@@ -20,7 +20,7 @@ function StatusSkeleton() {
     <Paper
       variant="outlined"
       aria-busy="true"
-      sx={{ maxWidth: 560, mx: 'auto', p: { xs: 2.5, sm: 4 }, borderRadius: 4 }}
+      sx={{ maxWidth: 560, mx: 'auto', p: { xs: 2.5, sm: 4 }, borderRadius: 2 }}
     >
       <Stack spacing={2} sx={{ alignItems: 'center' }}>
         <Typography role="status" variant="body2" color="text.secondary">

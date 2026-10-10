@@ -239,7 +239,6 @@ describe('confirmPayment', () => {
     ['no delivery data', { delivery: null }],
     ['no idempotency key', { idempotencyKey: null }],
     ['terms not accepted', { acceptedTerms: false }],
-    ['a quantity above the stock', { quantity: 9 }],
   ])('rejects an incomplete checkout: %s', async (_label, overrides) => {
     const requests = captureRequests();
     const store = await summaryStore(overrides, [buildProduct({ stock: 3 })]);

@@ -5,6 +5,7 @@ import {
   type ThunkDispatch,
   type UnknownAction,
 } from '@reduxjs/toolkit';
+import { createCheckoutListenerMiddleware } from '@/features/checkout';
 import { baseApi } from '@/shared/api/baseApi';
 import { createPersistenceMiddleware } from './persistence/persistenceMiddleware';
 import { rootReducer, type RootState } from './rootReducer';
@@ -23,7 +24,10 @@ export function createAppStore(
     preloadedState,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
-        .prepend(createPersistenceMiddleware().middleware)
+        .prepend(
+          createPersistenceMiddleware().middleware,
+          createCheckoutListenerMiddleware().middleware,
+        )
         .concat(baseApi.middleware, ...extraMiddleware),
   });
 }
