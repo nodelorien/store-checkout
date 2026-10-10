@@ -22,13 +22,13 @@ function setup() {
 }
 
 describe('ListProductsUseCase', () => {
-  it('AC-1: returns every product as a view, sorted by name', async () => {
+  it('AC-1: returns every product as a view, sorted by name, with its meta', async () => {
     const { list } = setup();
 
-    const views = expectOk(await list.execute());
+    const { items, meta } = expectOk(await list.execute());
 
-    expect(views.map((view) => view.name)).toEqual(['Aurora Desk Lamp', 'Terra Backpack']);
-    expect(views[0]).toEqual({
+    expect(items.map((view) => view.name)).toEqual(['Aurora Desk Lamp', 'Terra Backpack']);
+    expect(items[0]).toEqual({
       id: PRODUCT_ID,
       name: 'Aurora Desk Lamp',
       description: 'Dimmable LED desk lamp',
@@ -37,12 +37,36 @@ describe('ListProductsUseCase', () => {
       imageUrl: '/images/products/aurora-desk-lamp.svg',
       stock: 5,
     });
+    expect(meta).toEqual({ page: 1, pageSize: 2, total: 2, totalPages: 1 });
   });
 
   it('AC-1: returns an empty list for an empty catalogue', async () => {
     const list = new ListProductsUseCase(new InMemoryProductRepository());
 
-    expect(expectOk(await list.execute())).toEqual([]);
+    expect(expectOk(await list.execute())).toEqual({
+      items: [],
+      meta: { page: 1, pageSize: 1, total: 0, totalPages: 1 },
+    });
+  });
+
+  it('AC-2: applies search, sort and paging to the stored catalogue', async () => {
+    const { list } = setup();
+
+    // Both fixtures share the description and the price, so the name breaks the tie.
+    const page = expectOk(
+      await list.execute({ search: 'LED desk', sort: 'price-desc', page: 2, pageSize: 1 }),
+    );
+
+    expect(page.items.map((view) => view.name)).toEqual(['Terra Backpack']);
+    expect(page.meta).toEqual({ page: 2, pageSize: 1, total: 2, totalPages: 2 });
+  });
+
+  it('AC-7: returns VALIDATION_ERROR for an invalid query without reading the store', async () => {
+    const { list, repository } = setup();
+    const findAll = jest.spyOn(repository, 'findAll');
+
+    expectErr(await list.execute({ pageSize: 49 }), 'VALIDATION_ERROR');
+    expect(findAll).not.toHaveBeenCalled();
   });
 
   it('AC-6: propagates a persistence failure', async () => {

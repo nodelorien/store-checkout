@@ -38,7 +38,7 @@ export function tableNamesFromEnv(): TableNames {
   };
 }
 
-/** Idempotent: `PutItem` with fixed ids. Re-running resets the stock of the six products. */
+/** Idempotent: `PutItem` with fixed ids. Re-running resets the stock of every seeded product. */
 export async function seedProducts(
   client: DynamoDBDocumentClient,
   productsTable: string,

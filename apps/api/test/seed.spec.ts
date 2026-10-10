@@ -18,7 +18,7 @@ describe('seed data', () => {
   const slugOf = (imageUrl: string): string =>
     imageUrl.replace('/images/catalog/', '').replace('.svg', '');
 
-  it('AC-9: contains exactly the six agreed products with SVG images', () => {
+  it('AC-9: contains exactly the eighteen agreed products, in order, with SVG images', () => {
     expect(SEED_PRODUCTS.map((product) => slugOf(product.imageUrl))).toEqual([
       'aurora-desk-lamp',
       'nimbus-headphones',
@@ -26,16 +26,59 @@ describe('seed data', () => {
       'pulse-smartwatch',
       'ember-coffee-grinder',
       'drift-mechanical-keyboard',
+      'halo-smart-speaker',
+      'vertex-wireless-mouse',
+      'orbit-wireless-charger',
+      'prism-4k-monitor',
+      'echo-wireless-earbuds',
+      'flux-power-bank',
+      'nova-2k-webcam',
+      'atlas-laptop-stand',
+      'zen-air-purifier',
+      'pixel-instant-camera',
+      'volt-usb-c-hub',
+      'lumen-smart-bulb',
     ]);
     for (const product of SEED_PRODUCTS) {
-      expect(product.imageUrl).toMatch(/^\/images\/catalog\/[a-z-]+\.svg$/);
+      expect(product.imageUrl).toMatch(/^\/images\/catalog\/[a-z0-9-]+\.svg$/);
     }
+  });
+
+  it('AC-9: keeps the original six untouched and appends the twelve new ones', () => {
+    const summary = SEED_PRODUCTS.map(
+      (product) =>
+        [product.id.slice(-2), product.name, product.priceInCents, product.stock] as const,
+    );
+
+    expect(summary).toEqual([
+      ['01', 'Aurora Desk Lamp', 18_990_000, 12],
+      ['02', 'Nimbus Headphones', 45_990_000, 8],
+      ['03', 'Terra Backpack', 24_990_000, 25],
+      ['04', 'Pulse Smartwatch', 69_990_000, 5],
+      ['05', 'Ember Coffee Grinder', 32_990_000, 1],
+      ['06', 'Drift Mechanical Keyboard', 38_990_000, 0],
+      ['07', 'Halo Smart Speaker', 27_990_000, 14],
+      ['08', 'Vertex Wireless Mouse', 14_990_000, 30],
+      ['09', 'Orbit Wireless Charger', 11_990_000, 22],
+      ['0a', 'Prism 4K Monitor', 149_990_000, 4],
+      ['0b', 'Echo Wireless Earbuds', 32_990_000, 18],
+      ['0c', 'Flux Power Bank', 15_990_000, 40],
+      ['0d', 'Nova 2K Webcam', 21_990_000, 9],
+      ['0e', 'Atlas Laptop Stand', 13_990_000, 16],
+      ['0f', 'Zen Air Purifier', 54_990_000, 6],
+      ['10', 'Pixel Instant Camera', 42_990_000, 3],
+      ['11', 'Volt USB-C Hub', 18_990_000, 27],
+      ['12', 'Lumen Smart Bulb', 5_990_000, 60],
+    ]);
+    expect(new Set(SEED_PRODUCTS.map((product) => product.id.slice(0, -2)))).toEqual(
+      new Set(['3f2a9c1e-5b7d-4e8a-9c21-0a1b2c3d4e']),
+    );
   });
 
   it('AC-9: uses fixed unique UUIDs and valid integer-cent COP prices', () => {
     const ids = SEED_PRODUCTS.map((product) => product.id);
 
-    expect(new Set(ids).size).toBe(6);
+    expect(new Set(ids).size).toBe(18);
     for (const product of SEED_PRODUCTS) {
       expect(product.id).toMatch(
         /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
@@ -61,13 +104,13 @@ describe('seedProducts', () => {
   it('AC-9: puts every product with its fixed id (idempotent)', async () => {
     dynamo.on(PutCommand).resolves({});
 
-    expect(await seedProducts(client, 'test-products')).toBe(6);
+    expect(await seedProducts(client, 'test-products')).toBe(18);
     await seedProducts(client, 'test-products');
 
     const calls = dynamo.commandCalls(PutCommand);
-    expect(calls).toHaveLength(12);
+    expect(calls).toHaveLength(36);
     expect(calls[0].args[0].input).toEqual({ TableName: 'test-products', Item: SEED_PRODUCTS[0] });
-    expect(calls[6].args[0].input).toEqual(calls[0].args[0].input);
+    expect(calls[18].args[0].input).toEqual(calls[0].args[0].input);
   });
 });
 

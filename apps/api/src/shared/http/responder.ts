@@ -5,6 +5,11 @@ export interface DataEnvelope<T> {
   readonly data: T;
 }
 
+/** A list plus facts about it (paging). `meta` sits beside `data`, never inside it. */
+export interface ListEnvelope<T, M> extends DataEnvelope<T[]> {
+  readonly meta: M;
+}
+
 /** Carries a `DomainError` from a controller to the exception filter, which renders the envelope. */
 export class DomainErrorException extends Error {
   constructor(readonly domainError: DomainError) {
@@ -21,4 +26,12 @@ export function toResponse<T>(result: Result<T, DomainError>): DataEnvelope<T> {
       throw new DomainErrorException(error);
     },
   );
+}
+
+/** Like `toResponse` for a paged list: success → `{ data: items, meta }`. */
+export function toListResponse<T, M>(
+  result: Result<{ readonly items: T[]; readonly meta: M }, DomainError>,
+): ListEnvelope<T, M> {
+  const { data } = toResponse(result);
+  return { data: data.items, meta: data.meta };
 }
