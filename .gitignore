@@ -12,3 +12,4 @@ cdk.out/
 .vscode/*
 !.vscode/extensions.json
 .claude/settings.local.json
+cdk-outputs.json

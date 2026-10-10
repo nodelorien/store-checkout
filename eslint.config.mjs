@@ -33,6 +33,10 @@ export default tseslint.config(
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   {
+    files: ['**/scripts/**', '**/seed/**'],
+    rules: { 'no-console': 'off' },
+  },
+  {
     files: ['apps/api/**/*.ts', 'infra/**/*.ts'],
     languageOptions: { globals: { ...globals.node, ...globals.jest } },
   },
