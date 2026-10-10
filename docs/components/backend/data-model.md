@@ -79,7 +79,7 @@ The write methods report their condition outcome as a value (`CREATED | DUPLICAT
 `apps/api/src/seed/` — idempotent script (`PutItem` with fixed UUIDs) inserting 6 dummy products
 with realistic names, descriptions, COP prices, varied stock (include one with stock 1 and one
 with stock 0 to exercise edge cases) and `imageUrl` pointing to SVG files shipped with
-the web app (`/images/products/<slug>.svg`). Run locally via `npm run seed -w apps/api`; in AWS
+the web app (`/images/catalog/<slug>.svg`). Run locally via `npm run seed -w apps/api`; in AWS
 via a CDK custom resource or a one-off script after deploy. There is no create-product endpoint.
 
 ## Local development

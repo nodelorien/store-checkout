@@ -14,10 +14,22 @@ read-when: building or styling components, changing the theme, responsive behavi
 
 ## Theme (`app/theme.ts`)
 
-- MUI `createTheme` with a custom palette (own brand — do not imitate the gateway's branding),
-  `shape.borderRadius: 12`, typography scale tuned for mobile (`body1` 16 px minimum to avoid iOS input zoom).
-- Use theme tokens only: `theme.spacing`, `theme.palette`, `theme.breakpoints`. No hard-coded hex or px in components.
-- Styling via the `sx` prop or `styled()`; layout with `Stack`, `Box`, and CSS Grid (`display: 'grid'`).
+Dark, finance-app look (spec 019): quiet surfaces, one accent, nothing decorative without a job.
+
+- MUI `createTheme`, `mode: 'dark'`. Own brand — do not imitate the gateway's branding.
+- Surfaces: `background.default` (page) → `background.paper` (cards, sheets) → insets back on
+  `background.default`; separated by `divider` hairlines, not shadows.
+- Accent: violet → blue. `primary.main` is the light violet for text, icons and focus;
+  `primary.dark` and the `theme.brand.action` gradient fill buttons (white text stays ≥ 4.5:1).
+- `theme.brand`: `accent`, `action`, `card`, `panel` gradients and the `glow` shadow. Use these
+  instead of composing gradients in components.
+- Type: "Outfit Variable", self-hosted through `@fontsource-variable/outfit` (imported once in
+  `main.tsx`; `font-display: swap`, so the system stack shows first). `body1` 16 px minimum to
+  avoid iOS input zoom. Tabular numerals everywhere.
+- Shape: radius 14, cards 20, buttons are pills.
+- Use theme tokens only: `theme.spacing`, `theme.palette`, `theme.brand`, `theme.breakpoints`.
+  No hard-coded hex or px colours in components.
+- Styling via the `sx` prop or `styled()`; layout with `Stack`, `Box`, and CSS Grid.
 - Support `prefers-reduced-motion`; interactive feedback ≤ 250 ms, entrances ≤ 400 ms. All
   motion goes through `shared/motion` — see `motion.md`.
 
@@ -36,6 +48,7 @@ read-when: building or styling components, changing the theme, responsive behavi
 |---|---|---|
 | `ProductCard` | `Card` | image (fixed aspect ratio), name, description, price, stock chip, CTA. Stock 0 → "Sold out", CTA disabled |
 | `CheckoutDialog` | `Dialog` | `fullScreen` below `sm`; scrollable content, sticky actions; order line with quantity stepper, sections "Card details" and "Delivery details", terms checkbox |
+| `CardPreview` | — | picture of the card being typed (number so far, holder, expiry, brand — never the CVC); `aria-hidden`; reads the form state only |
 | `CardForm` | `TextField` | `inputMode="numeric"`, `autoComplete="cc-number|cc-exp|cc-csc|cc-name"`, brand logo as end adornment (`CardBrandLogo`: the only component with literal colours — the card schemes' own) |
 | `DeliveryForm` | `TextField` | `autoComplete` tokens `name`, `email`, `tel`, `address-line1`, `address-line2`, `address-level2`, `address-level1`, `postal-code` |
 | `SummaryBackdrop` | `Backdrop` + `Slide` + `Paper` | bottom sheet (centred card from `sm`) rendered **inside** the `Backdrop`, over the dimmed product page; a `Modal` without its own backdrop wraps it only for portal, focus trap, scroll lock and `Esc`; rows: product, base fee, delivery fee, total; "Pay $X" button; dismissed by backdrop click / `Esc` only when not paying |
@@ -46,7 +59,11 @@ The summary **must** be a backdrop component (brief requirement, Material "Backd
 
 ## Images (rubric: "render fast, no out-of-bounds")
 
-- Ship hand-written **SVG** illustrations (a few kB each, `viewBox="0 0 800 600"`, 4:3) in `apps/web/public/images/products/<slug>.svg`; served by CloudFront with long cache.
+- Ship **SVG** illustrations (about 2 kB each, `viewBox="0 0 800 600"`, 4:3) in
+  `apps/web/public/images/catalog/<slug>.svg`, all in one system: dark stage, soft halo in the
+  product's accent, thin luminous lines. Served by CloudFront as immutable for a year.
+- Because of that cache, **a changed image needs a new path** (as do other files in `public/`);
+  editing a file in place will not reach returning visitors.
 - `ResponsiveImage` always sets `width`/`height` and wraps the image in an `aspect-ratio: 4 / 3` box with `object-fit: cover` → zero layout shift, nothing out of bounds.
 - `loading="lazy"` + `decoding="async"` for below-the-fold; the first two cards load eagerly, the first with `fetchpriority="high"`.
 - Skeleton placeholder while loading; fallback placeholder on error.

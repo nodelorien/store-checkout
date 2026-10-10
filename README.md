@@ -82,7 +82,7 @@ Full contract: [`docs/components/backend/api.md`](docs/components/backend/api.md
 | Workspace | Tests | Statements | Branches | Functions | Lines |
 |---|---|---|---|---|---|
 | Backend `apps/api` | 508 (33 suites) | 100% | 99.58% | 100% | 100% |
-| Frontend `apps/web` | 493 (39 suites) | 98.66% | 94.54% | 99.26% | 99.57% |
+| Frontend `apps/web` | 500 (40 suites) | 98.69% | 94.13% | 99.27% | 99.58% |
 | Infra `infra` | 31 | 100% | 100% | 100% | 100% |
 
 A global threshold of 80% is enforced in each workspace and in CI.

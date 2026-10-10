@@ -67,7 +67,7 @@ uncovers an edge; `ResponsiveImage parallax={n}` does this for images.
 
 | Screen | Motion |
 |---|---|
-| Product page | `StoreHero` (far 48 px, near 24 px, text still; opening sequence; planes lean to the mouse) · image drift 16 px · cards revealed in rows of three, lift on hover unless sold out · stock chip highlight |
+| Product page | `StoreHero` (gradient arcs: far 48 px, near 24 px, text still; opening sequence; planes lean to the mouse) · image drift 16 px · cards revealed in rows of three, lift on hover unless sold out · stock chip highlight |
 | Checkout dialog / summary | section and row reveals; the sheet slides up (MUI `Slide`) |
 | Status | card reveal; approved check is drawn, failure icon nudges once; pending keeps its spinner |
 | Every page | brand bar gains a shadow after 32 px of scroll · buttons shrink slightly while pressed |

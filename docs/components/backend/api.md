@@ -32,7 +32,7 @@ No authentication (guest checkout); resource ids are unguessable UUIDs.
 `GET /products` → `200`
 ```json
 { "data": [ { "id": "uuid", "name": "…", "description": "…", "priceInCents": 12990000,
-              "currency": "COP", "imageUrl": "/images/products/<slug>.svg", "stock": 12 } ] }
+              "currency": "COP", "imageUrl": "/images/catalog/<slug>.svg", "stock": 12 } ] }
 ```
 
 `GET /payment-config` → `200`
