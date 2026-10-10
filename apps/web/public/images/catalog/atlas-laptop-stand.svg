@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Laptop stand">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#181c2c"/><stop offset="1" stop-color="#0b0d14"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#9d8cff" stop-opacity=".42"/><stop offset="1" stop-color="#9d8cff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9d8cff"/><stop offset="1" stop-color="#59c3ff"/></linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="400" cy="300" r="300" fill="url(#glow)"/>
+  <circle cx="400" cy="300" r="214" fill="none" stroke="#fff" stroke-opacity=".06"/>
+  <circle cx="400" cy="300" r="268" fill="none" stroke="#fff" stroke-opacity=".035"/>
+  <ellipse cx="400" cy="492" rx="210" ry="13" fill="#000" opacity=".5"/>
+  <path d="M250 482 H550" stroke="#3a4263" stroke-width="12" stroke-linecap="round"/>
+  <path d="M300 482 L372 356 M500 482 L458 392" stroke="url(#a)" stroke-width="12" stroke-linecap="round"/>
+  <path d="M236 398 L548 322" stroke="#262c42" stroke-width="14" stroke-linecap="round"/>
+  <path d="M258 372 L524 308 L498 150 L232 214 Z" fill="#0b0d14" stroke="url(#a)" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M276 250 L400 220 M282 282 L360 263" stroke="#3a4263" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="452" cy="212" r="20" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="5"/>
+</svg>
