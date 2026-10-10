@@ -4,3 +4,4 @@ coverage
 cdk.out
 package-lock.json
 *.md
+.claude/worktrees

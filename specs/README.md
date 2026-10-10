@@ -49,7 +49,7 @@ Ordered by dependency and by rubric value (PRD §7). Each row becomes a spec fol
 | 012 | `summary-and-payment` — summary backdrop, confirm payment, error handling | frontend | FR-06, FR-07 | Not started |
 | 013 | `transaction-status` — status page, polling, back to store, stock refresh | frontend | FR-10 | Not started |
 | 014 | `refresh-recovery` — resume at every step, token expiry, guards | frontend | FR-11 | Not started |
-| 015 | `aws-deployment` — CDK stack, security headers, secrets, deploy workflow, seed | infra | NFR-04, NFR-05, NFR-08 | Not started |
+| 015 | `aws-deployment` — CDK stack, security headers, secrets, deploy workflow, seed | infra | NFR-04, NFR-05, NFR-08 | Code done, deploy pending |
 | 016 | `readme-and-hardening` — README deliverables, coverage report, Observatory, cross-browser pass | all | NFR-09, FR-13 | Not started |
 
 Critical path if time runs short: 001 → 002 → 003 → 005 → 006 → 009 → 010 → 011 → 012 → 013 → 015 → 016.

@@ -16,7 +16,7 @@ const innerLayerForbiddenImports = [
 ];
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '**/coverage/**', '**/cdk.out/**', '**/node_modules/**'] },
+  { ignores: ['.claude/worktrees/**', '**/build/**', '**/dist/**', '**/coverage/**', '**/cdk.out/**', '**/node_modules/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -31,6 +31,10 @@ export default tseslint.config(
     files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
     languageOptions: { globals: globals.node },
     rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
+  {
+    files: ['**/scripts/**', '**/seed/**'],
+    rules: { 'no-console': 'off' },
   },
   {
     files: ['apps/api/**/*.ts', 'infra/**/*.ts'],
