@@ -35,7 +35,7 @@ Ordered by dependency and by rubric value (PRD §7). Each row becomes a spec fol
 
 | # | Spec | Component | Covers | Status |
 |---|---|---|---|---|
-| 001 | `project-scaffold` — workspaces, Nest + Vite apps, lint, Jest with 80% gate, docker-compose DynamoDB, CI | all | NFR-03, NFR-10 | Not started |
+| 001 | `project-scaffold` — workspaces, Nest + Vite apps, lint, Jest with 80% gate, docker-compose DynamoDB, CI | all | NFR-03, NFR-10 | Done |
 | 002 | `shared-kernel` — `Result`, `DomainError`, error→HTTP mapper, config validation, logging/redaction, health | backend | NFR-02, NFR-05 | Not started |
 | 003 | `products-catalog-api` — product domain, repository, seed, `GET /products`, Swagger | backend | FR-01, FR-12, FR-13 | Not started |
 | 004 | `customers-api` — upsert by email, get | backend | FR-12 | Not started |
