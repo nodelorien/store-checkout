@@ -34,6 +34,8 @@ apps/web/src/
     checkout/     checkoutSlice, selectors, thunks, components (CardForm, DeliveryForm,
                   CheckoutDialog, SummaryBackdrop), validation/ (schemas, luhn, cardBrand)
     transaction/  transactionSlice, api, components, pages/TransactionStatusPage
+    account/      ordersSlice (+ its own storage), AccountMenu, pages/OrdersPage
+    insights/     pages/InsightsPage (three reports), pure helpers
   shared/
     api/          baseApi (RTK Query), error normaliser
     gateway/      tokenizeCard client (the only code that sees card data)

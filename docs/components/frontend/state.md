@@ -13,6 +13,7 @@ Flux, unidirectional: **view → action/thunk → reducer → selector → view*
 ```ts
 {
   api: RTKQueryState,                 // products, paymentConfig, transactions cache
+  orders: { items: { id, reference, placedAt }[] },  // this device's purchases (spec 022)
   checkout: {
     step: 'PRODUCTS' | 'PAYMENT_INFO' | 'SUMMARY' | 'STATUS',
     productId: string | null,
@@ -44,6 +45,7 @@ Never add card number / CVC / expiry / holder to this shape.
 | `createTransaction` (mutation) | invalidates `Products` and `PaymentConfig` (on success and failure) |
 | `getTransaction` (query) | provides `Transaction:{id}`; a final status invalidates `Products` |
 | `getTransactionDelivery` (query) | provides `Delivery:{transactionId}`; requested only for approved payments |
+| `getSalesSummary` (query, `days`) | not tagged; re-read whenever Insights is shown |
 | `updateDeliveryAddress` (mutation) | invalidates `Delivery:{transactionId}` (on success and failure) |
 
 `getProducts` (the whole catalogue) stays in the cache because the checkout joins the selected
@@ -103,6 +105,13 @@ Rules:
 - Removed when the flow is reset (`finishCheckout`, sold out, product unavailable); an expired card token is dropped from it.
 - Delivery data is personal data: it stays on the device, is cleared at the end of the flow, and
   is never sent anywhere except our API.
+
+### Orders (`features/account`)
+
+`orders` is filled by `createTransaction` succeeding (newest first, no duplicates, at most 20)
+and stored under its own key, `orders:v1`, by its own listener — separate from the checkout
+snapshot, which expires after a day. It is written field by field (id, reference, date) and read
+back through a Zod schema, so it can never carry customer, address or card data.
 
 ## Flux alignment checklist
 
