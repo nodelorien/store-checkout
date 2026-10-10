@@ -7,5 +7,6 @@ export {
 export { useReducedMotion, useParallaxMode } from './environment';
 export { ParallaxLayer } from './ParallaxLayer';
 export { Reveal, revealSx, useReveal } from './Reveal';
+export { usePointerDepth } from './pointerDepth';
 export { useChangeCount } from './useChangeCount';
 export { useScrollProgress } from './useScrollProgress';

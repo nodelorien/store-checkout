@@ -81,7 +81,13 @@ export const theme = createTheme(base, {
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
-        root: { minHeight: TOUCH_TARGET, paddingInline: base.spacing(2.5) },
+        root: {
+          minHeight: TOUCH_TARGET,
+          paddingInline: base.spacing(2.5),
+          // Press feedback; the reduced-motion rule above makes it instant.
+          transition: `transform ${motion.duration.feedback}ms ${motion.easing.standard}, background-color ${motion.duration.standard}ms`,
+          '&:active': { transform: 'scale(0.97)' },
+        },
         sizeSmall: { minHeight: 44 },
       },
     },

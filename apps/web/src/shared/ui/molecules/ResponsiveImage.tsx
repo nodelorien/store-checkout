@@ -67,7 +67,9 @@ export function ResponsiveImage({
         objectFit: 'cover',
         opacity: status === 'loaded' ? 1 : 0,
         transition: (theme) =>
-          theme.transitions.create('opacity', { duration: theme.transitions.duration.short }),
+          theme.transitions.create(['opacity', 'transform'], {
+            duration: theme.transitions.duration.standard,
+          }),
       }}
     />
   );

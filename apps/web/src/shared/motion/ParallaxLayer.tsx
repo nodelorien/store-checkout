@@ -20,6 +20,11 @@ interface ParallaxLayerProps extends Omit<BoxProps, 'ref'> {
    */
   timeline?: 'view' | 'scroll';
   range?: number;
+  /**
+   * Pixels the layer shifts towards the mouse, read from the `--pointer-x` / `--pointer-y`
+   * variables an ancestor sets with `usePointerDepth`. Independent of the scroll drift.
+   */
+  pointer?: number;
 }
 
 /**
@@ -30,6 +35,7 @@ export function ParallaxLayer({
   travel,
   timeline = 'view',
   range = motion.parallax.heroRange,
+  pointer = 0,
   sx,
   style,
   children,
@@ -63,6 +69,12 @@ export function ParallaxLayer({
       {...boxProps}
       style={{ ...style, ...driftEnds } as CSSProperties}
       sx={[
+        mode !== 'off' &&
+          pointer > 0 && {
+            // `translate` composes with the `transform` the scroll drift animates.
+            translate: `calc(var(--pointer-x, 0) * ${pointer}px) calc(var(--pointer-y, 0) * ${pointer}px)`,
+            transition: `translate ${motion.duration.emphasis}ms ${motion.easing.decelerate}`,
+          },
         mode !== 'off' && {
           [MOTION_ALLOWED_QUERY]: {
             [SCROLL_TIMELINE_SUPPORT]: {
