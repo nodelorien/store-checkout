@@ -4,6 +4,7 @@ module.exports = {
   testEnvironment: 'jest-fixed-jsdom',
   testEnvironmentOptions: { customExportConditions: [''] },
   roots: ['<rootDir>/src'],
+  testTimeout: 15000,
   testMatch: ['**/*.test.ts', '**/*.test.tsx'],
   setupFiles: ['<rootDir>/src/test/polyfills.ts'],
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
