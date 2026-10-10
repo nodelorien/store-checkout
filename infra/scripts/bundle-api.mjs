@@ -30,6 +30,9 @@ await build({
   sourcemap: false,
   keepNames: true,
   logLevel: 'info',
+  // npm may nest some API dependencies under apps/api/node_modules while hoisting the packages
+  // that require them; this lets those hoisted packages still find them.
+  nodePaths: [path.join(apiRoot, 'node_modules')],
   external: [
     // Optional NestJS integrations that are lazily required and not used here.
     '@nestjs/microservices',
