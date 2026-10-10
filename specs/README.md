@@ -36,19 +36,19 @@ Ordered by dependency and by rubric value (PRD §7). Each row becomes a spec fol
 | # | Spec | Component | Covers | Status |
 |---|---|---|---|---|
 | 001 | `project-scaffold` — workspaces, Nest + Vite apps, lint, Jest with 80% gate, docker-compose DynamoDB, CI | all | NFR-03, NFR-10 | Done |
-| 002 | `shared-kernel` — `Result`, `DomainError`, error→HTTP mapper, config validation, logging/redaction, health | backend | NFR-02, NFR-05 | Not started |
-| 003 | `products-catalog-api` — product domain, repository, seed, `GET /products`, Swagger | backend | FR-01, FR-12, FR-13 | Not started |
-| 004 | `customers-api` — upsert by email, get | backend | FR-12 | Not started |
-| 005 | `payment-gateway-adapter` — port, HTTP adapter, signature, `GET /payment-config` | backend | FR-08 | Not started |
-| 006 | `transactions-api` — create (PENDING + charge + poll), get/reconcile, resolve, idempotency | backend | FR-07, FR-08, FR-09, BR-01..06 | Not started |
-| 007 | `deliveries-api` — created on approval, get, by transaction, amend address | backend | FR-09, FR-12, BR-07 | Not started |
-| 008 | `gateway-webhook` — checksum-verified event endpoint (optional) | backend | FR-09 | Not started |
-| 009 | `web-foundation` — store, RTK Query base, theme, router, app shell, persistence middleware | frontend | NFR-01, FR-11 | Not started |
-| 010 | `product-page` — product grid, stock, images, CTA | frontend | FR-01, FR-02, NFR-06 | Not started |
-| 011 | `payment-info-step` — checkout dialog, card form + brand detection, delivery form, tokenization | frontend | FR-02..05 | Not started |
-| 012 | `summary-and-payment` — summary backdrop, confirm payment, error handling | frontend | FR-06, FR-07 | Not started |
-| 013 | `transaction-status` — status page, polling, back to store, stock refresh | frontend | FR-10 | Not started |
-| 014 | `refresh-recovery` — resume at every step, token expiry, guards | frontend | FR-11 | Not started |
+| 002 | `shared-kernel` — `Result`, `DomainError`, error→HTTP mapper, config validation, logging/redaction, health | backend | NFR-02, NFR-05 | Done |
+| 003 | `products-catalog-api` — product domain, repository, seed, `GET /products`, Swagger | backend | FR-01, FR-12, FR-13 | Done |
+| 004 | `customers-api` — upsert by email, get | backend | FR-12 | Done |
+| 005 | `payment-gateway-adapter` — port, HTTP adapter, signature, `GET /payment-config` | backend | FR-08 | Done |
+| 006 | `transactions-api` — create (PENDING + charge + poll), get/reconcile, resolve, idempotency | backend | FR-07, FR-08, FR-09, BR-01..06 | Done |
+| 007 | `deliveries-api` — created on approval, get, by transaction, amend address | backend | FR-09, FR-12, BR-07 | Done |
+| 008 | `gateway-webhook` — checksum-verified event endpoint (optional) | backend | FR-09 | Done |
+| 009 | `web-foundation` — store, RTK Query base, theme, router, app shell, persistence middleware | frontend | NFR-01, FR-11 | Done |
+| 010 | `product-page` — product grid, stock, images, CTA | frontend | FR-01, FR-02, NFR-06 | Done |
+| 011 | `payment-info-step` — checkout dialog, card form + brand detection, delivery form, tokenization | frontend | FR-02..05 | Done |
+| 012 | `summary-and-payment` — summary backdrop, confirm payment, error handling | frontend | FR-06, FR-07 | Done |
+| 013 | `transaction-status` — status page, polling, back to store, stock refresh | frontend | FR-10 | Done |
+| 014 | `refresh-recovery` — resume at every step, token expiry, guards | frontend | FR-11 | Done |
 | 015 | `aws-deployment` — CDK stack, security headers, secrets, deploy workflow, seed | infra | NFR-04, NFR-05, NFR-08 | Code done, deploy pending |
 | 016 | `readme-and-hardening` — README deliverables, coverage report, Observatory, cross-browser pass | all | NFR-09, FR-13 | Not started |
 

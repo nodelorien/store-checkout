@@ -32,7 +32,7 @@ description: Frontend engineering rules for apps/web (React, TypeScript, MUI, Re
 - **The summary is a Backdrop component** (bottom sheet over a dimmed page) — brief requirement.
 - **Responsive:** MUI `Stack` / `Box` / CSS grid, theme breakpoints and spacing. No fixed widths,
   no horizontal scroll at 320–375 px, touch targets ≥ 44 px, inputs ≥ 16 px font.
-- **Images:** WebP, explicit dimensions or `aspect-ratio`, lazy below the fold, skeleton + error fallback.
+- **Images:** lightweight SVG, explicit dimensions or `aspect-ratio`, lazy below the fold, skeleton + error fallback.
 - **Every async view handles** loading, empty, error (with retry) and success.
 - **Accessibility:** labelled inputs with proper `autoComplete` and `inputMode`, `role="alert"`
   for errors, focus management in dialog/backdrop.
