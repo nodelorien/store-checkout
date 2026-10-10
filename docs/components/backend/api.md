@@ -57,7 +57,7 @@ No authentication (guest checkout); resource ids are unguessable UUIDs.
   "delivery": { "addressLine1": "Cra 7 # 71-21", "addressLine2": "Apto 501",
                 "city": "Bogotá", "region": "Cundinamarca", "country": "CO", "postalCode": "110231" } }
 ```
-Optional header `Idempotency-Key: <uuid>` — a repeated key returns the original transaction (200) instead of charging twice.
+Optional header `Idempotency-Key: <uuid>` (8–128 chars of `A-Za-z0-9_-`) — a repeated key returns the original transaction (200) instead of charging twice.
 
 Response `201` (and `GET /transactions/:id` → `200`)
 ```json
@@ -89,19 +89,21 @@ Response `201` (and `GET /transactions/:id` → `200`)
 
 | Code | HTTP |
 |---|---|
-| `VALIDATION_ERROR` | 400 (`details` = field errors) |
+| `VALIDATION_ERROR` | 400 (`details` = `[{ field, message }]`, nested fields as `customer.email`; also malformed JSON and non-UUID ids) |
 | `*_NOT_FOUND` | 404 |
 | `OUT_OF_STOCK`, `DELIVERY_NOT_EDITABLE` | 409 |
-| `PAYMENT_GATEWAY_REJECTED` | 422 |
-| rate limited | 429 |
-| `PAYMENT_GATEWAY_UNAVAILABLE` | 502 |
-| `PERSISTENCE_ERROR`, unexpected | 500 (generic message, no internals) |
+| `PAYMENT_GATEWAY_REJECTED` | 422 (generic message; `details` carry `transactionId` and `reference` of the stored `ERROR` transaction) |
+| `NOT_FOUND` (unknown route) | 404 |
+| `PAYLOAD_TOO_LARGE` | 413 |
+| `RATE_LIMITED` | 429 |
+| `PAYMENT_GATEWAY_UNAVAILABLE` | 502 (same `details` when raised by `POST /transactions` after the transaction was stored) |
+| `PERSISTENCE_ERROR`, `INTERNAL_ERROR` (unexpected) | 500 (generic message, no internals) |
 
 A declined card is **not** an HTTP error: `201` with `status: "DECLINED"`.
 
 ## HTTP hygiene
 
-- `Cache-Control: no-store` on everything under `/transactions`, `/customers`, `/deliveries`; `/products` may use `max-age=0, must-revalidate`.
+- `Cache-Control: no-store` on everything under `/transactions`, `/customers`, `/deliveries`, `/payment-config`, `/webhooks`; `/products` uses `max-age=0, must-revalidate`.
 - `helmet`, body limit 10 kb, rate limit (`@nestjs/throttler`): 60 req/min global, 10/min on `POST /transactions`.
 - CORS: disabled in production (same origin); allow `http://localhost:5173` in development only.
 - `X-Request-Id` echoed/generated on every response.
