@@ -1,0 +1,52 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Deploys only once the AWS role is configured in the repository variables.
+    if: ${{ vars.AWS_DEPLOY_ROLE_ARN != '' }}
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+      STAGE: prod
+      PAYMENT_GATEWAY_BASE_URL: ${{ vars.PAYMENT_GATEWAY_BASE_URL }}
+      PAYMENT_GATEWAY_PUBLIC_KEY: ${{ vars.PAYMENT_GATEWAY_PUBLIC_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:cov
+      - run: npm run build
+      - run: npm run bundle:api -w infra
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - run: npm run deploy -w infra
+      - name: Seed products (idempotent)
+        run: npm run seed -w apps/api
+        env:
+          TABLE_PRODUCTS: checkout-prod-products
+      - name: Smoke test
+        run: |
+          SITE_URL=$(node -p "Object.values(require('./infra/cdk-outputs.json'))[0].SiteUrl")
+          curl --fail --silent --show-error "$SITE_URL/api/v1/health"
+          curl --fail --silent --show-error "$SITE_URL/api/v1/products" > /dev/null
+          curl --fail --silent --show-error --head "$SITE_URL/" | grep -i strict-transport-security
