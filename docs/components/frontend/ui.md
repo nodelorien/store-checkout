@@ -18,7 +18,8 @@ read-when: building or styling components, changing the theme, responsive behavi
   `shape.borderRadius: 12`, typography scale tuned for mobile (`body1` 16 px minimum to avoid iOS input zoom).
 - Use theme tokens only: `theme.spacing`, `theme.palette`, `theme.breakpoints`. No hard-coded hex or px in components.
 - Styling via the `sx` prop or `styled()`; layout with `Stack`, `Box`, and CSS Grid (`display: 'grid'`).
-- Support `prefers-reduced-motion`; keep transitions ≤ 250 ms.
+- Support `prefers-reduced-motion`; interactive feedback ≤ 250 ms, entrances ≤ 400 ms. All
+  motion goes through `shared/motion` — see `motion.md`.
 
 ## Layout rules
 
