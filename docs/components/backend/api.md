@@ -42,6 +42,12 @@ No authentication (guest checkout); resource ids are unguessable UUIDs.
             "currency": "COP", "baseFeeInCents": 250000, "deliveryFeeInCents": 800000 } }
 ```
 
+`PUT /customers` — request `{ "fullName", "email", "phone" }` → `201` (created) or `200` (same e-mail, updated)
+```json
+{ "data": { "id": "uuid", "fullName": "Ada Lovelace", "email": "ada@example.com",
+            "phone": "+573001234567", "createdAt": "ISO", "updatedAt": "ISO" } }
+```
+
 `POST /transactions` — request
 ```json
 { "productId": "uuid", "quantity": 1,
