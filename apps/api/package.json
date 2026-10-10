@@ -8,7 +8,9 @@
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "jest",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "tables:create": "nest build && node dist/seed/create-tables.js",
+    "seed": "nest build && node dist/seed/seed.js"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1149.0",
