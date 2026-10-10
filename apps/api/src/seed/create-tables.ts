@@ -1,9 +1,8 @@
-import { createTables, loadSeedSettings } from './seed-runner';
+import { createTables, loadSeedClient, tableNamesFromEnv } from './seed-runner';
 
 /** `npm run tables:create -w apps/api` — creates the four tables in DynamoDB Local. */
 async function main(): Promise<void> {
-  const { client, tables } = loadSeedSettings();
-  const created = await createTables(client, tables);
+  const created = await createTables(loadSeedClient(), tableNamesFromEnv());
   console.warn(created.length > 0 ? `Created: ${created.join(', ')}` : 'All tables already exist');
 }
 

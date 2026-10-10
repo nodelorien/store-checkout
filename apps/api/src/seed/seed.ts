@@ -1,10 +1,11 @@
-import { loadSeedSettings, seedProducts } from './seed-runner';
+import { loadSeedClient, productsTableFromEnv, seedProducts } from './seed-runner';
 
 /** `npm run seed -w apps/api` — inserts the dummy products (local DynamoDB or AWS, per env). */
 async function main(): Promise<void> {
-  const { client, tables } = loadSeedSettings();
-  const count = await seedProducts(client, tables.products);
-  console.warn(`Seeded ${count} products into ${tables.products}`);
+  const client = loadSeedClient();
+  const table = productsTableFromEnv();
+  const count = await seedProducts(client, table);
+  console.warn(`Seeded ${count} products into ${table}`);
 }
 
 main().catch((error: unknown) => {
