@@ -65,10 +65,15 @@ followed by a retry cannot charge twice.
 
 | Status | Presentation | Action |
 |---|---|---|
-| `APPROVED` | success icon, reference, total, delivery address | "Back to store" |
-| `DECLINED` | error icon, gateway message if any | "Try again" (→ `PAYMENT_INFO`, same product) · "Back to store" |
+| `APPROVED` | success icon, reference (copy), total, order tracking | "Back to store" · "Print receipt" |
+| `DECLINED` | error icon, gateway message if any, "What you can do" | "Try again" (→ `PAYMENT_INFO`, same product) · "Back to store" |
 | `ERROR` / `VOIDED` | error icon, generic message | same as declined |
 | `PENDING` | spinner, "Processing your payment…" | auto-poll; "Check again" after timeout |
+
+Order tracking (spec 020) reads `GET /transactions/:id/delivery`: paid → preparing (`PENDING`) →
+on its way (`SHIPPED`) → delivered. The journey is shown to anyone with the link; the address and
+"Edit address" (`PATCH /deliveries/:id`, only while `PENDING`) only on the device whose checkout
+produced the transaction. The summary also offers card instalments, sent as `installments`.
 
 Request failures (network, 409 `OUT_OF_STOCK`, 422, 502) stay on the summary with an inline
 `Alert` and a retry affordance; `OUT_OF_STOCK` sends the user back to `PRODUCTS`.

@@ -17,6 +17,7 @@ Flux, unidirectional: **view → action/thunk → reducer → selector → view*
     step: 'PRODUCTS' | 'PAYMENT_INFO' | 'SUMMARY' | 'STATUS',
     productId: string | null,
     quantity: number,
+    installments: number,            // one of 1, 2, 3, 6, 12, 24, 36 (spec 020)
     delivery: { fullName, email, phone, addressLine1, addressLine2, city, region, postalCode } | null,
     card: { tokenId: string, brand: 'VISA' | 'MASTERCARD', lastFour: string, expiresAt: string } | null,
     acceptedTerms: boolean,
@@ -41,6 +42,8 @@ Never add card number / CVC / expiry / holder to this shape.
 | `getPaymentConfig` (query) | provides `PaymentConfig` |
 | `createTransaction` (mutation) | invalidates `Products` and `PaymentConfig` (on success and failure) |
 | `getTransaction` (query) | provides `Transaction:{id}`; a final status invalidates `Products` |
+| `getTransactionDelivery` (query) | provides `Delivery:{transactionId}`; requested only for approved payments |
+| `updateDeliveryAddress` (mutation) | invalidates `Delivery:{transactionId}` (on success and failure) |
 
 `baseQuery` unwraps `{ data }` and normalises every failure into
 `UiError { code, message, status, requestId }`. `message` is our own copy mapped from `code`
@@ -83,7 +86,7 @@ Storage key `checkout:v1`. Snapshot fields:
 
 ```ts
 { version: 1, savedAt: ISO,
-  checkout: { step, productId, quantity, delivery, card: { tokenId, brand, lastFour, expiresAt },
+  checkout: { step, productId, quantity, installments, delivery, card: { tokenId, brand, lastFour, expiresAt },
               acceptedTerms, idempotencyKey },
   transaction: { id, reference, status } }
 ```
