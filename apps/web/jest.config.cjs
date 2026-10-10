@@ -5,9 +5,10 @@ module.exports = {
   testEnvironmentOptions: { customExportConditions: [''] },
   roots: ['<rootDir>/src'],
   testMatch: ['**/*.test.ts', '**/*.test.tsx'],
+  setupFiles: ['<rootDir>/src/test/polyfills.ts'],
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
   transform: {
-    '^.+\\.(t|j)sx?$': [
+    '^.+\\.(mjs|[tj]sx?)$': [
       '@swc/jest',
       {
         jsc: {
@@ -18,6 +19,10 @@ module.exports = {
       },
     ],
   },
+  // MSW 3 and some of its dependencies ship ESM only; let SWC compile them for Jest (CommonJS).
+  transformIgnorePatterns: [
+    '/node_modules/(?!(msw|@mswjs|@msw|@open-draft|until-async|rettime|outvariant|headers-polyfill|is-node-process|cookie|tough-cookie|tldts|tldts-core|strict-event-emitter)/)',
+  ],
   moduleNameMapper: {
     '^@/shared/config/env$': '<rootDir>/src/test/envMock.ts',
     '^@/(.*)$': '<rootDir>/src/$1',
