@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
+import { selectIsOwnOrder } from '@/features/account';
 import { selectDelivery } from '@/features/checkout';
 import { useGetTransactionDeliveryQuery, useGetTransactionQuery } from '@/shared/api/baseApi';
 import { isUiError } from '@/shared/api/uiError';
@@ -45,6 +46,7 @@ export function TransactionStatusPage() {
   const polling = useAppSelector(selectPolling);
   const flowTransactionId = useAppSelector(selectFlowTransactionId);
   const flowDelivery = useAppSelector(selectDelivery);
+  const isOwnOrder = useAppSelector((state) => selectIsOwnOrder(state, id));
   const { data, error, isLoading, isFetching, refetch } = useGetTransactionQuery(id, {
     refetchOnMountOrArgChange: true,
   });
@@ -123,7 +125,7 @@ export function TransactionStatusPage() {
           tracked.data && (
             <DeliveryTracker
               delivery={tracked.data}
-              showAddress={isCurrentFlow}
+              showAddress={isCurrentFlow || isOwnOrder}
               onEditAddress={() => setEditingAddress(true)}
             />
           )

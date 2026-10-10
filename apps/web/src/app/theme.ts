@@ -32,6 +32,11 @@ const brandEffects = {
   card: `linear-gradient(135deg, ${brand.violetDeeper} 0%, ${brand.violetDeep} 45%, ${brand.blueDeep} 100%)`,
   panel: `linear-gradient(160deg, ${brand.raised}, ${brand.ink})`,
   glow: `0 18px 48px ${alpha(brand.violetDeep, 0.35)}`,
+  /**
+   * Chart series, in fixed order (never cycled). Validated against the paper surface for
+   * lightness band, colour-vision separation and contrast; change them only with the validator.
+   */
+  chart: ['#7c5cff', '#1c9e8c'] as const,
 };
 
 declare module '@mui/material/styles' {

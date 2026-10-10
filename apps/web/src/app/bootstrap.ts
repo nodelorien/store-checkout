@@ -1,3 +1,4 @@
+import { loadOrders } from '@/features/account';
 import { resumeCheckout } from '@/features/checkout';
 import { persistState } from './persistence/persistenceMiddleware';
 import { fromSnapshot } from './persistence/snapshot';
@@ -9,7 +10,7 @@ import { createAppStore, type AppStore } from './store';
  * flushes the snapshot when the page is hidden so a refresh inside the debounce window loses nothing.
  */
 export function bootstrapStore(target: Pick<Window, 'addEventListener'> = window): AppStore {
-  const store = createAppStore(fromSnapshot(load()));
+  const store = createAppStore({ ...fromSnapshot(load()), orders: loadOrders() });
 
   store.dispatch(resumeCheckout());
   target.addEventListener('pagehide', () => persistState(store.getState()));

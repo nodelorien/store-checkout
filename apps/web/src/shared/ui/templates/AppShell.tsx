@@ -8,7 +8,7 @@ import { alpha, keyframes, useTheme } from '@mui/material/styles';
 import SvgIcon from '@mui/material/SvgIcon';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { useId, type PropsWithChildren } from 'react';
+import { useId, type PropsWithChildren, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { STORE_NAME } from '@/shared/config/brand';
 import {
@@ -46,7 +46,7 @@ function BrandMark() {
 }
 
 /** Page frame shared by every route: brand bar, centred main column and footer. */
-export function AppShell({ children }: PropsWithChildren) {
+export function AppShell({ children, account }: PropsWithChildren<{ account?: ReactNode }>) {
   const bar = useScrollProgress<HTMLElement>('--bar-shadow', motion.parallax.barRange);
 
   return (
@@ -120,11 +120,12 @@ export function AppShell({ children }: PropsWithChildren) {
               <Typography
                 variant="body2"
                 component="span"
-                sx={{ '@media (max-width: 359.95px)': { display: 'none' } }}
+                sx={{ display: { xs: 'none', sm: 'inline' } }}
               >
                 Secure checkout
               </Typography>
             </Stack>
+            {account}
           </Toolbar>
         </Container>
       </AppBar>

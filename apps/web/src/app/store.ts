@@ -5,6 +5,7 @@ import {
   type ThunkDispatch,
   type UnknownAction,
 } from '@reduxjs/toolkit';
+import { createOrdersListenerMiddleware } from '@/features/account';
 import { createCheckoutListenerMiddleware } from '@/features/checkout';
 import { baseApi } from '@/shared/api/baseApi';
 import { createPersistenceMiddleware } from './persistence/persistenceMiddleware';
@@ -27,6 +28,7 @@ export function createAppStore(
         .prepend(
           createPersistenceMiddleware().middleware,
           createCheckoutListenerMiddleware().middleware,
+          createOrdersListenerMiddleware().middleware,
         )
         .concat(baseApi.middleware, ...extraMiddleware),
   });
