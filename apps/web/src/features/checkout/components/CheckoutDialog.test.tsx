@@ -37,7 +37,7 @@ async function renderDialog(
 ) {
   const store = createAppStore(preloaded, { extraMiddleware });
   await seedProducts(store, products);
-  const user = userEvent.setup();
+  const user = userEvent.setup({ delay: null });
   const view = renderWithProviders(<CheckoutFlow />, { store });
   const dialog = await screen.findByRole('dialog', { name: 'Checkout' });
   return { user, dialog, ...view };
@@ -395,8 +395,8 @@ describe('CheckoutDialog', () => {
     await fillCard(user);
     await user.click(termsCheckbox());
     await user.click(continueButton());
-    await waitFor(() => expect(store.getState().checkout.step).toBe('SUMMARY'));
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(await screen.findByRole('dialog', { name: 'Order summary' })).toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Checkout' })).not.toBeInTheDocument();
 
     act(() => {
       store.dispatch(paymentInfoEditRequested());

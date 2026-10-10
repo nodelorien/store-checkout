@@ -1,6 +1,7 @@
 import { useAppSelector } from '@/app/hooks';
 import { selectCheckoutStep, selectSelectedProduct } from '../selectors';
 import { CheckoutDialog } from './CheckoutDialog';
+import { SummaryBackdrop } from './SummaryBackdrop';
 
 /**
  * Overlays of the checkout on top of the product page, driven by `checkout.step`:
@@ -13,5 +14,10 @@ export function CheckoutFlow() {
 
   if (!product || (step !== 'PAYMENT_INFO' && step !== 'SUMMARY')) return null;
 
-  return <CheckoutDialog product={product} open={step === 'PAYMENT_INFO'} />;
+  return (
+    <>
+      <CheckoutDialog product={product} open={step === 'PAYMENT_INFO'} />
+      {step === 'SUMMARY' && <SummaryBackdrop product={product} />}
+    </>
+  );
 }
