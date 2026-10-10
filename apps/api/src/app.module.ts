@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CustomersModule } from './modules/customers/customers.module';
+import { DeliveriesModule } from './modules/deliveries/deliveries.module';
 import { HealthModule } from './modules/health/health.module';
 import { PaymentConfigModule } from './modules/payment-config/payment-config.module';
 import { ProductsModule } from './modules/products/products.module';
@@ -16,6 +17,7 @@ import { SharedModule } from './shared/shared.module';
     CustomersModule,
     PaymentConfigModule,
     TransactionsModule,
+    DeliveriesModule,
   ],
 })
 export class AppModule {}

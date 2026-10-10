@@ -72,6 +72,16 @@ Response `201` (and `GET /transactions/:id` → `200`)
 ```
 `status` ∈ `PENDING | APPROVED | DECLINED | VOIDED | ERROR`. The client must not send prices or fees.
 
+`GET /deliveries/:id`, `GET /transactions/:id/delivery`, `PATCH /deliveries/:id` → `200`
+```json
+{ "data": { "id": "uuid", "transactionId": "uuid", "customerId": "uuid", "productId": "uuid", "quantity": 1,
+            "address": { "addressLine1": "…", "addressLine2": "… | null", "city": "…", "region": "…",
+                         "country": "CO", "postalCode": "… | null" },
+            "status": "PENDING | SHIPPED | DELIVERED", "createdAt": "ISO", "updatedAt": "ISO" } }
+```
+`PATCH` body: any subset (at least one) of the `delivery` address fields; fields not sent are kept.
+`GET /transactions/:id/delivery` answers `404 DELIVERY_NOT_FOUND` until the transaction is approved.
+
 ## Validation (DTO level)
 
 - `productId`: UUID. `quantity`: int 1–10. `installments`: int 1–36 (default 1).
