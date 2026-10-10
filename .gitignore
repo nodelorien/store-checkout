@@ -13,3 +13,4 @@ cdk.out/
 !.vscode/extensions.json
 .claude/settings.local.json
 cdk-outputs.json
+.claude/worktrees/

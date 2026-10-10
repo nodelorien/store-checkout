@@ -16,7 +16,7 @@ const innerLayerForbiddenImports = [
 ];
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '**/coverage/**', '**/cdk.out/**', '**/node_modules/**'] },
+  { ignores: ['.claude/worktrees/**', '**/build/**', '**/dist/**', '**/coverage/**', '**/cdk.out/**', '**/node_modules/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
