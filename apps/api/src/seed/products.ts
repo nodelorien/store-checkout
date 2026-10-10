@@ -16,7 +16,7 @@ function product(
     description,
     priceInCents,
     currency: 'COP',
-    imageUrl: `/images/products/${slug}.svg`,
+    imageUrl: `/images/catalog/${slug}.svg`,
     stock,
     createdAt: SEEDED_AT,
     updatedAt: SEEDED_AT,

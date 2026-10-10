@@ -16,7 +16,7 @@ beforeEach(() => dynamo.reset());
 
 describe('seed data', () => {
   const slugOf = (imageUrl: string): string =>
-    imageUrl.replace('/images/products/', '').replace('.svg', '');
+    imageUrl.replace('/images/catalog/', '').replace('.svg', '');
 
   it('AC-9: contains exactly the six agreed products with SVG images', () => {
     expect(SEED_PRODUCTS.map((product) => slugOf(product.imageUrl))).toEqual([
@@ -28,7 +28,7 @@ describe('seed data', () => {
       'drift-mechanical-keyboard',
     ]);
     for (const product of SEED_PRODUCTS) {
-      expect(product.imageUrl).toMatch(/^\/images\/products\/[a-z-]+\.svg$/);
+      expect(product.imageUrl).toMatch(/^\/images\/catalog\/[a-z-]+\.svg$/);
     }
   });
 
