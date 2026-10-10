@@ -11,3 +11,4 @@ export {
   checkoutReset,
 } from './checkoutSlice';
 export type { CheckoutState, CheckoutStep, DeliveryInfo, TokenizedCard } from './checkoutSlice';
+export { selectCheckoutStep, selectDelivery, selectPageNotice } from './selectors';
