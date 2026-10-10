@@ -4,11 +4,11 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-import { alpha, keyframes } from '@mui/material/styles';
+import { alpha, keyframes, useTheme } from '@mui/material/styles';
 import SvgIcon from '@mui/material/SvgIcon';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import type { PropsWithChildren } from 'react';
+import { useId, type PropsWithChildren } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { STORE_NAME } from '@/shared/config/brand';
 import {
@@ -20,17 +20,27 @@ import {
 
 const appear = keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
 
+/** The mark: an open orbit with a point of light, in the brand gradient. */
 function BrandMark() {
+  const theme = useTheme();
+  const gradientId = useId();
+
   return (
-    <SvgIcon viewBox="0 0 24 24" sx={{ color: 'secondary.main', fontSize: 28 }} aria-hidden>
-      <circle cx="12" cy="12" r="5" />
+    <SvgIcon viewBox="0 0 32 32" sx={{ fontSize: 30 }} aria-hidden>
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor={theme.palette.primary.main} />
+          <stop offset="1" stopColor={theme.palette.secondary.main} />
+        </linearGradient>
+      </defs>
       <path
-        d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"
+        d="M16 5a11 11 0 1 0 11 11"
         fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
+        stroke={`url(#${gradientId})`}
+        strokeWidth="3.4"
         strokeLinecap="round"
       />
+      <circle cx="24.300" cy="7.700" r="2.900" fill={theme.palette.text.primary} />
     </SvgIcon>
   );
 }
@@ -45,16 +55,20 @@ export function AppShell({ children }: PropsWithChildren) {
         ref={bar.ref}
         position="sticky"
         elevation={0}
-        color="primary"
+        color="transparent"
         data-scroll-shadow={bar.mode}
         sx={(theme) => ({
+          color: 'text.primary',
+          bgcolor: alpha(theme.palette.background.default, 0.78),
+          backdropFilter: 'saturate(160%) blur(14px)',
+          borderBottom: `1px solid ${theme.palette.divider}`,
           // The shadow lives on a pseudo-element so only its opacity changes while scrolling.
           '&::after': {
             content: '""',
             position: 'absolute',
             inset: 0,
             pointerEvents: 'none',
-            boxShadow: `0 6px 16px ${alpha(theme.palette.primary.dark, 0.35)}`,
+            boxShadow: `0 12px 32px ${alpha(theme.palette.common.black, 0.55)}`,
             opacity: 'var(--bar-shadow, 0)',
             [MOTION_ALLOWED_QUERY]: {
               [SCROLL_TIMELINE_SUPPORT]: {
@@ -90,7 +104,17 @@ export function AppShell({ children }: PropsWithChildren) {
             <Stack
               direction="row"
               spacing={0.5}
-              sx={{ ml: 'auto', alignItems: 'center', flexShrink: 0, opacity: 0.9 }}
+              sx={{
+                ml: 'auto',
+                alignItems: 'center',
+                flexShrink: 0,
+                px: 1.25,
+                py: 0.5,
+                borderRadius: 999,
+                border: 1,
+                borderColor: 'divider',
+                color: 'text.secondary',
+              }}
             >
               <LockOutlinedIcon fontSize="small" aria-hidden />
               <Typography

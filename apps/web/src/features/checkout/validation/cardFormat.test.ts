@@ -5,6 +5,7 @@ import {
   isExpiryInFuture,
   onlyNumeric,
   parseExpiry,
+  previewCardNumber,
 } from './cardFormat';
 
 describe('formatCardNumber', () => {
@@ -83,5 +84,21 @@ describe('isExpiryInFuture', () => {
     ['12', '25', false],
   ])('%s/%s → %s', (month, year, expected) => {
     expect(isExpiryInFuture({ month, year }, now)).toBe(expected);
+  });
+});
+
+describe('previewCardNumber', () => {
+  it('AC-3: shows placeholders in groups of four before anything is typed', () => {
+    expect(previewCardNumber('')).toBe('•••• •••• •••• ••••');
+  });
+
+  it('AC-3: fills in the digits typed so far', () => {
+    expect(previewCardNumber('4242 42')).toBe('4242 42•• •••• ••••');
+    expect(previewCardNumber('4242424242424242')).toBe('4242 4242 4242 4242');
+  });
+
+  it('ignores anything that is not a digit and anything beyond sixteen digits', () => {
+    expect(previewCardNumber('42a4-2')).toBe('4242 •••• •••• ••••');
+    expect(previewCardNumber('42424242424242429999')).toBe('4242 4242 4242 4242');
   });
 });

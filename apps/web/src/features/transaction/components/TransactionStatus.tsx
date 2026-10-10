@@ -156,6 +156,7 @@ export function TransactionStatus({
               borderRadius: '50%',
               color: `${content.tone}.main`,
               bgcolor: alpha(theme.palette[content.tone].main, 0.12),
+              boxShadow: `0 0 0 10px ${alpha(theme.palette[content.tone].main, 0.05)}, 0 0 44px ${alpha(theme.palette[content.tone].main, 0.3)}`,
               ...(iconMotion === 'nudge' && {
                 animation: `${nudge} ${motion.duration.emphasis}ms ${motion.easing.standard} 1`,
               }),

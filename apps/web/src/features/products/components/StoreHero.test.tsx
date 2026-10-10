@@ -1,10 +1,11 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { mockReducedMotion } from '@/test/motion';
+import { renderWithProviders } from '@/test/renderWithProviders';
 import { StoreHero } from './StoreHero';
 
 describe('StoreHero', () => {
   it('AC-6: keeps the page heading a heading and names the band after it', () => {
-    render(<StoreHero />);
+    renderWithProviders(<StoreHero />);
 
     const heading = screen.getByRole('heading', { level: 2, name: 'Featured products' });
     expect(screen.getByRole('region', { name: 'Featured products' })).toContainElement(heading);
@@ -12,7 +13,7 @@ describe('StoreHero', () => {
   });
 
   it('AC-6: hides the decorative depth layers from assistive technology', () => {
-    render(<StoreHero />);
+    renderWithProviders(<StoreHero />);
 
     for (const layer of ['hero-layer-far', 'hero-layer-near']) {
       expect(screen.getByTestId(layer)).toHaveAttribute('aria-hidden', 'true');
@@ -21,7 +22,7 @@ describe('StoreHero', () => {
   });
 
   it('AC-6: the deeper layer travels further than the nearer one, within the limit', () => {
-    render(<StoreHero />);
+    renderWithProviders(<StoreHero />);
     const travel = (id: string) =>
       Number.parseFloat(screen.getByTestId(id).style.getPropertyValue('--parallax-to') || '0');
 
@@ -40,7 +41,7 @@ describe('StoreHero', () => {
         return 1;
       });
       cleanups.push(() => raf.mockRestore());
-      render(<StoreHero />);
+      renderWithProviders(<StoreHero />);
       const band = screen.getByRole('region');
       band.getBoundingClientRect = () => ({ left: 0, top: 0, width: 400, height: 200 }) as DOMRect;
       return band;
