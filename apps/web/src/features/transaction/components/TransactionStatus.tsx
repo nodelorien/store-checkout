@@ -1,4 +1,3 @@
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlined';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import Box from '@mui/material/Box';
@@ -7,11 +6,17 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import { alpha } from '@mui/material/styles';
+import { alpha, keyframes } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import type { Transaction } from '@/shared/api/types';
-import { Money } from '@/shared/components/Money';
-import { canRetryPayment, statusContentFor, type StatusContent } from './statusContent';
+import { motion, revealSx, useReducedMotion, useReveal } from '@/shared/motion';
+import { Money } from '@/shared/ui/atoms/Money';
+import {
+  canRetryPayment,
+  statusContentFor,
+  statusMotionFor,
+  type StatusContent,
+} from './statusContent';
 
 export interface DeliveryRecap {
   fullName: string;
@@ -31,11 +36,49 @@ interface TransactionStatusProps {
 
 const CARD_BRAND_NAMES = { VISA: 'VISA', MASTERCARD: 'MasterCard' } as const;
 
+// Slightly longer than the normalised path (1) so rounding never leaves a gap in the stroke.
+const DASH = 1.05;
+const draw = keyframes({ from: { strokeDashoffset: DASH }, to: { strokeDashoffset: 0 } });
+const { nudge: NUDGE } = motion.distance;
+const nudge = keyframes({
+  '0%, 100%': { transform: 'translate3d(0, 0, 0)' },
+  '25%': { transform: `translate3d(${-NUDGE}px, 0, 0)` },
+  '60%': { transform: `translate3d(${NUDGE}px, 0, 0)` },
+  '85%': { transform: `translate3d(${-NUDGE / 2}px, 0, 0)` },
+});
+
+/** Approved mark. Its resting state is fully drawn, so it is complete without the animation. */
+function DrawnCheck() {
+  const stroke = (delay: number) => ({
+    strokeDasharray: DASH,
+    animation: `${draw} ${motion.duration.emphasis}ms ${motion.easing.standard} ${delay}ms backwards`,
+  });
+
+  return (
+    <Box
+      component="svg"
+      viewBox="0 0 24 24"
+      focusable="false"
+      sx={{ width: 40, height: 40, fill: 'none', stroke: 'currentColor', strokeWidth: 2 }}
+    >
+      <Box component="circle" cx="12" cy="12" r="9" pathLength={1} sx={stroke(0)} />
+      <Box
+        component="path"
+        d="M8 12.5l2.8 2.8L16.2 9.5"
+        pathLength={1}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        sx={stroke(motion.duration.feedback)}
+      />
+    </Box>
+  );
+}
+
 function StatusIcon({ content, pending }: { content: StatusContent; pending: boolean }) {
   if (pending && content.tone === 'info') {
     return <CircularProgress size={40} aria-label="Processing" />;
   }
-  if (content.tone === 'success') return <CheckCircleOutlineIcon sx={{ fontSize: 40 }} />;
+  if (content.tone === 'success') return <DrawnCheck />;
   if (content.tone === 'warning') return <ScheduleIcon sx={{ fontSize: 40 }} />;
   return <ErrorOutlineIcon sx={{ fontSize: 40 }} />;
 }
@@ -81,16 +124,30 @@ export function TransactionStatus({
   const content = statusContentFor(transaction, pollingTimedOut);
   const pending = transaction.status === 'PENDING';
   const { amounts, currency } = transaction;
+  const iconMotion = statusMotionFor(content.tone, useReducedMotion());
+  const reveal = useReveal<HTMLDivElement>();
 
   return (
     <Paper
+      ref={reveal.ref}
       variant="outlined"
-      sx={{ maxWidth: 560, mx: 'auto', p: { xs: 2.5, sm: 4 }, borderRadius: 2, minWidth: 0 }}
+      data-reveal={reveal.state}
+      sx={{
+        maxWidth: 560,
+        mx: 'auto',
+        p: { xs: 2.5, sm: 4 },
+        borderRadius: 2,
+        minWidth: 0,
+        ...revealSx(reveal.state),
+      }}
     >
       <Stack spacing={3}>
         <Stack spacing={1.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
           <Box
+            // Keyed by tone: the animation plays once, when the final result replaces the spinner.
+            key={content.tone}
             aria-hidden={!pending}
+            data-motion={iconMotion}
             sx={(theme) => ({
               display: 'grid',
               placeItems: 'center',
@@ -99,6 +156,9 @@ export function TransactionStatus({
               borderRadius: '50%',
               color: `${content.tone}.main`,
               bgcolor: alpha(theme.palette[content.tone].main, 0.12),
+              ...(iconMotion === 'nudge' && {
+                animation: `${nudge} ${motion.duration.emphasis}ms ${motion.easing.standard} 1`,
+              }),
             })}
           >
             <StatusIcon content={content} pending={pending} />

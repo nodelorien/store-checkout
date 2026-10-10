@@ -2,6 +2,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useId, type PropsWithChildren, type ReactNode } from 'react';
+import { revealSx, useReveal } from '@/shared/motion';
 
 interface FormSectionProps {
   title: string;
@@ -11,9 +12,17 @@ interface FormSectionProps {
 /** A titled group of fields, exposed to assistive technology as a named group. */
 export function FormSection({ title, icon, children }: PropsWithChildren<FormSectionProps>) {
   const titleId = useId();
+  const { ref, state } = useReveal<HTMLElement>();
 
   return (
-    <Box component="section" role="group" aria-labelledby={titleId}>
+    <Box
+      ref={ref}
+      component="section"
+      role="group"
+      aria-labelledby={titleId}
+      data-reveal={state}
+      sx={revealSx(state)}
+    >
       <Stack
         direction="row"
         spacing={1}

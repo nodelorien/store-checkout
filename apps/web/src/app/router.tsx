@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { selectCheckoutStep } from '@/features/checkout';
 import { ProductsPage } from '@/features/products';
 import { TransactionStatusPage, selectFlowTransactionId } from '@/features/transaction';
-import { NotFoundPage } from '@/shared/components/NotFoundPage';
+import { NotFoundPage } from '@/shared/ui/pages/NotFoundPage';
 import { useAppSelector } from './hooks';
 
 /**

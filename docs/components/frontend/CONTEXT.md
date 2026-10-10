@@ -16,6 +16,7 @@ React Hook Form + Zod, Jest + Testing Library (ADR-0009). Mobile-first: design a
 | `checkout-flow.md` | changing steps, navigation, refresh recovery, polling |
 | `state.md` | touching the store, slices, selectors, RTK Query, persistence |
 | `ui.md` | building/styling components, theme, responsive rules, images |
+| `motion.md` | adding or changing an animation, parallax layer or scroll-linked style |
 | `testing.md` | writing tests or fixing coverage |
 | `../backend/api.md` | consuming or mocking an endpoint (the contract) |
 
@@ -29,14 +30,15 @@ apps/web/src/
     persistence/                                # snapshot allow-list, load/save, listener middleware
     router.tsx  theme.ts
   features/
-    products/     api (RTK Query endpoints), components, pages/ProductsPage
+    products/     api (RTK Query endpoints), components (StoreHero, ProductCard…), pages/ProductsPage
     checkout/     checkoutSlice, selectors, thunks, components (CardForm, DeliveryForm,
                   CheckoutDialog, SummaryBackdrop), validation/ (schemas, luhn, cardBrand)
     transaction/  transactionSlice, api, components, pages/TransactionStatusPage
   shared/
     api/          baseApi (RTK Query), error normaliser
     gateway/      tokenizeCard client (the only code that sees card data)
-    components/   Money, AppShell, ErrorBoundary, ResponsiveImage…
+    ui/           atoms (Money), molecules (ResponsiveImage), templates (AppShell), pages — ADR-0012
+    motion/       tokens, Reveal, ParallaxLayer, scroll fallback (see motion.md)
     config/env.ts # the only file that reads import.meta.env
     lib/          formatMoney, pure helpers
   test/           render helpers, MSW handlers, builders

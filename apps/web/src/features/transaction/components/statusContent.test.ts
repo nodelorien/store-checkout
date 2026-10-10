@@ -1,4 +1,4 @@
-import { canRetryPayment, statusContentFor } from './statusContent';
+import { canRetryPayment, statusContentFor, statusMotionFor } from './statusContent';
 
 describe('statusContentFor', () => {
   it.each([
@@ -50,4 +50,22 @@ describe('canRetryPayment', () => {
   ] as const)('%s → %s', (status, expected) => {
     expect(canRetryPayment(status)).toBe(expected);
   });
+});
+
+describe('statusMotionFor', () => {
+  it.each([
+    ['success', 'draw'],
+    ['error', 'nudge'],
+    ['info', 'none'],
+    ['warning', 'none'],
+  ] as const)('animates a %s result with "%s"', (tone, expected) => {
+    expect(statusMotionFor(tone, false)).toBe(expected);
+  });
+
+  it.each(['success', 'error', 'info', 'warning'] as const)(
+    'AC-1: a %s result does not move when motion is reduced',
+    (tone) => {
+      expect(statusMotionFor(tone, true)).toBe('none');
+    },
+  );
 });

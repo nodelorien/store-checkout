@@ -4,12 +4,21 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
+import { alpha, keyframes } from '@mui/material/styles';
 import SvgIcon from '@mui/material/SvgIcon';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import type { PropsWithChildren } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { STORE_NAME } from '@/shared/config/brand';
+import {
+  MOTION_ALLOWED_QUERY,
+  SCROLL_TIMELINE_SUPPORT,
+  motion,
+  useScrollProgress,
+} from '@/shared/motion';
+
+const appear = keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
 
 function BrandMark() {
   return (
@@ -28,9 +37,35 @@ function BrandMark() {
 
 /** Page frame shared by every route: brand bar, centred main column and footer. */
 export function AppShell({ children }: PropsWithChildren) {
+  const bar = useScrollProgress<HTMLElement>('--bar-shadow', motion.parallax.barRange);
+
   return (
     <Box sx={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-      <AppBar position="sticky" elevation={0} color="primary">
+      <AppBar
+        ref={bar.ref}
+        position="sticky"
+        elevation={0}
+        color="primary"
+        data-scroll-shadow={bar.mode}
+        sx={(theme) => ({
+          // The shadow lives on a pseudo-element so only its opacity changes while scrolling.
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            boxShadow: `0 6px 16px ${alpha(theme.palette.primary.dark, 0.35)}`,
+            opacity: 'var(--bar-shadow, 0)',
+            [MOTION_ALLOWED_QUERY]: {
+              [SCROLL_TIMELINE_SUPPORT]: {
+                animation: `${appear} 1ms ${motion.easing.linear} both`,
+                animationTimeline: 'scroll(root block)',
+                animationRange: `0px ${motion.parallax.barRange}px`,
+              },
+            },
+          },
+        })}
+      >
         <Container maxWidth="lg" disableGutters>
           <Toolbar sx={{ gap: 1, px: { xs: 2, sm: 3 }, minHeight: { xs: 56, sm: 64 } }}>
             <Link

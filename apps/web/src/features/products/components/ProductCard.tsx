@@ -5,8 +5,9 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useId } from 'react';
 import type { Product } from '@/shared/api/types';
-import { Money } from '@/shared/components/Money';
-import { ResponsiveImage } from '@/shared/components/ResponsiveImage';
+import { clipWithoutScrolling } from '@/shared/motion';
+import { Money } from '@/shared/ui/atoms/Money';
+import { ResponsiveImage } from '@/shared/ui/molecules/ResponsiveImage';
 import { StockChip } from './StockChip';
 
 interface ProductCardProps {
@@ -14,6 +15,9 @@ interface ProductCardProps {
   imagePriority?: 'high' | 'eager' | 'lazy';
   onPay: (productId: string) => void;
 }
+
+/** Pixels the product image drifts inside its frame as the card crosses the viewport. */
+const IMAGE_DRIFT = 8;
 
 const clampLines = (lines: number) => ({
   display: '-webkit-box',
@@ -30,12 +34,20 @@ export function ProductCard({ product, imagePriority = 'lazy', onPay }: ProductC
     <Card
       component="article"
       aria-labelledby={titleId}
-      sx={{ height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        minWidth: 0,
+        // The card clips its image; it must not become the scroller the image's drift tracks.
+        ...clipWithoutScrolling,
+      }}
     >
       <ResponsiveImage
         src={product.imageUrl}
         alt={product.name}
         priority={imagePriority}
+        parallax={IMAGE_DRIFT}
         sx={soldOut ? { filter: 'grayscale(1)', opacity: 0.7 } : undefined}
       />
 

@@ -4,11 +4,14 @@ import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import type { PropsWithChildren } from 'react';
 import type { Product } from '@/shared/api/types';
+import { Reveal } from '@/shared/motion';
 import { ProductCard } from './ProductCard';
 
 /** Number of cards visible without scrolling on common viewports; these images load eagerly. */
 const ABOVE_THE_FOLD = 2;
 const SKELETON_CARDS = 6;
+/** Cards that enter together are staggered within a row of at most this many. */
+const STAGGER_GROUP = 3;
 
 function GridList({ children, busy = false }: PropsWithChildren<{ busy?: boolean }>) {
   return (
@@ -44,9 +47,9 @@ export function ProductGrid({ products, onPay }: ProductGridProps) {
   return (
     <GridList>
       {products.map((product, index) => (
-        <Box component="li" key={product.id} sx={{ minWidth: 0 }}>
+        <Reveal component="li" key={product.id} index={index % STAGGER_GROUP} sx={{ minWidth: 0 }}>
           <ProductCard product={product} imagePriority={imagePriority(index)} onPay={onPay} />
-        </Box>
+        </Reveal>
       ))}
     </GridList>
   );

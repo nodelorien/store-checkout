@@ -71,4 +71,19 @@ describe('ResponsiveImage', () => {
     complete.mockRestore();
     naturalWidth.mockRestore();
   });
+
+  it('AC-5: a drifting image overfills its frame by exactly the distance it may travel', () => {
+    render(<ResponsiveImage src="/lamp.svg" alt="Desk lamp" parallax={8} />);
+    const layer = screen.getByTestId('image-parallax');
+
+    expect(layer).toContainElement(screen.getByAltText('Desk lamp'));
+    expect(layer.style.getPropertyValue('--parallax-from')).toBe('-8px');
+    expect(layer.style.getPropertyValue('--parallax-to')).toBe('8px');
+  });
+
+  it('does not wrap the image in a depth layer unless asked', () => {
+    render(<ResponsiveImage src="/lamp.svg" alt="Desk lamp" />);
+
+    expect(screen.queryByTestId('image-parallax')).not.toBeInTheDocument();
+  });
 });
