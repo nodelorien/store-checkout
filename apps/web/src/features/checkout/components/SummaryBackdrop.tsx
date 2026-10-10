@@ -24,6 +24,7 @@ import {
   selectTokenizedCard,
 } from '../selectors';
 import { CardBrandLogo } from './CardBrandLogo';
+import { InstallmentsField } from './InstallmentsField';
 import { SummaryRow } from './SummaryRow';
 
 const BRAND_NAMES = { VISA: 'VISA', MASTERCARD: 'MasterCard' } as const;
@@ -169,6 +170,8 @@ export function SummaryBackdrop({ product }: SummaryBackdropProps) {
                   </Box>
                 )}
               </Stack>
+
+              <InstallmentsField currency={product.currency} disabled={isPaying} />
 
               {feesUnavailable && (
                 <Alert

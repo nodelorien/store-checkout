@@ -8,6 +8,9 @@ export type CheckoutStep = (typeof CHECKOUT_STEPS)[number];
 
 export const MAX_QUANTITY_PER_ORDER = 10;
 
+/** Instalment plans offered for a card payment; the API accepts 1–36. */
+export const INSTALLMENT_OPTIONS = [1, 2, 3, 6, 12, 24, 36] as const;
+
 export interface DeliveryInfo {
   fullName: string;
   email: string;
@@ -31,6 +34,7 @@ export interface CheckoutState {
   step: CheckoutStep;
   productId: string | null;
   quantity: number;
+  installments: number;
   delivery: DeliveryInfo | null;
   card: TokenizedCard | null;
   acceptedTerms: boolean;
@@ -49,6 +53,7 @@ export const initialCheckoutState: CheckoutState = {
   step: 'PRODUCTS',
   productId: null,
   quantity: 1,
+  installments: 1,
   delivery: null,
   card: null,
   acceptedTerms: false,
@@ -70,6 +75,10 @@ function clampQuantity(quantity: number): number {
   return Math.min(MAX_QUANTITY_PER_ORDER, Math.max(1, Math.trunc(quantity)));
 }
 
+function toInstallmentOption(installments: number): number {
+  return (INSTALLMENT_OPTIONS as readonly number[]).includes(installments) ? installments : 1;
+}
+
 /** Starts the payment-info step for a product; the delivery draft is kept, the payment is not. */
 function startPaymentInfo(state: CheckoutState, productId: string) {
   state.step = 'PAYMENT_INFO';
@@ -86,10 +95,14 @@ const checkoutSlice = createSlice({
     productSelected(state, action: PayloadAction<string>) {
       startPaymentInfo(state, action.payload);
       state.quantity = 1;
+      state.installments = 1;
       state.notice = null;
     },
     quantityChanged(state, action: PayloadAction<number>) {
       state.quantity = clampQuantity(action.payload);
+    },
+    installmentsChanged(state, action: PayloadAction<number>) {
+      state.installments = toInstallmentOption(action.payload);
     },
     deliveryDraftChanged(state, action: PayloadAction<DeliveryInfo>) {
       state.delivery = action.payload;
@@ -101,6 +114,7 @@ const checkoutSlice = createSlice({
       state.step = 'PRODUCTS';
       state.productId = null;
       state.quantity = 1;
+      state.installments = 1;
       state.card = null;
       state.idempotencyKey = null;
       state.submission = idleSubmission();
@@ -174,6 +188,7 @@ export const checkoutReducer = checkoutSlice.reducer;
 export const {
   productSelected,
   quantityChanged,
+  installmentsChanged,
   deliveryDraftChanged,
   termsAcceptanceChanged,
   checkoutDialogClosed,

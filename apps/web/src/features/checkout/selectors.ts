@@ -2,7 +2,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '@/app/store';
 import { baseApi } from '@/shared/api/baseApi';
 import type { OrderAmounts } from '@/shared/api/types';
-import { MAX_QUANTITY_PER_ORDER } from './checkoutSlice';
+import { INSTALLMENT_OPTIONS, MAX_QUANTITY_PER_ORDER } from './checkoutSlice';
 
 const selectProductsResult = baseApi.endpoints.getProducts.select();
 const selectPaymentConfigResult = baseApi.endpoints.getPaymentConfig.select();
@@ -10,6 +10,7 @@ const selectPaymentConfigResult = baseApi.endpoints.getPaymentConfig.select();
 export const selectCheckout = (state: RootState) => state.checkout;
 export const selectCheckoutStep = (state: RootState) => state.checkout.step;
 export const selectQuantity = (state: RootState) => state.checkout.quantity;
+export const selectInstallments = (state: RootState) => state.checkout.installments;
 export const selectDelivery = (state: RootState) => state.checkout.delivery;
 export const selectTokenizedCard = (state: RootState) => state.checkout.card;
 export const selectAcceptedTerms = (state: RootState) => state.checkout.acceptedTerms;
@@ -56,6 +57,22 @@ export const selectOrderAmounts = createSelector(
       totalInCents: subtotalInCents + config.baseFeeInCents + config.deliveryFeeInCents,
     };
   },
+);
+
+export interface InstallmentPlan {
+  installments: number;
+  /** Total divided by the number of instalments, rounded up to the peso. Before bank interest. */
+  perInstallmentInCents: number;
+}
+
+/** One plan per offered option, for the total about to be charged. Empty until it is known. */
+export const selectInstallmentPlans = createSelector([selectOrderAmounts], (amounts) =>
+  amounts
+    ? INSTALLMENT_OPTIONS.map((installments): InstallmentPlan => ({
+        installments,
+        perInstallmentInCents: Math.ceil(amounts.totalInCents / installments / 100) * 100,
+      }))
+    : [],
 );
 
 /** `now` is injected (epoch ms) so the rule is testable and the selector stays pure. */

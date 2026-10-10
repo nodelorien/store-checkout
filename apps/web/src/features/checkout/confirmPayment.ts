@@ -40,7 +40,7 @@ export function buildTransactionBody(
     cardToken: card.tokenId,
     cardBrand: card.brand,
     cardLastFour: card.lastFour,
-    installments: 1,
+    installments: checkout.installments,
     acceptanceToken: config.acceptance.token,
     customer: { fullName: delivery.fullName, email: delivery.email, phone: delivery.phone },
     delivery: {
