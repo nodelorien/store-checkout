@@ -15,7 +15,7 @@ This model must be mirrored (diagram + table) in the README (NFR-09).
 |---|---|---|---|
 | `products` | `id` (S) | — | name, description, priceInCents (N), currency, imageUrl, stock (N), createdAt, updatedAt |
 | `customers` | `id` (S) | `byEmail`: PK `email` | fullName, email (normalised), phone, createdAt, updatedAt |
-| `transactions` | `id` (S) | `byReference`: PK `reference` · `byIdempotencyKey`: PK `idempotencyKey` (sparse) | reference, status, productId, quantity, customerId, subtotalInCents, baseFeeInCents, deliveryFeeInCents, totalInCents, currency, shippingAddress (M), cardBrand, cardLastFour, gatewayTransactionId?, statusMessage?, deliveryId?, idempotencyKey?, createdAt, updatedAt, resolvedAt? |
+| `transactions` | `id` (S) | `byReference`: PK `reference` · `byIdempotencyKey`: PK `idempotencyKey` (sparse) | reference, status, productId, productName, productImageUrl (snapshot), quantity, installments, customerId, subtotalInCents, baseFeeInCents, deliveryFeeInCents, totalInCents, currency, shippingAddress (M), cardBrand, cardLastFour, gatewayTransactionId?, statusMessage?, deliveryId?, idempotencyKey?, createdAt, updatedAt, resolvedAt? |
 | `deliveries` | `id` (S) | `byTransaction`: PK `transactionId` | customerId, productId, quantity, address (M), status, createdAt, updatedAt |
 
 ```
@@ -32,13 +32,20 @@ customers 1 ──── n transactions n ──── 1 products
 | List products | `Scan products` (≤ 20 seeded items; acceptable, documented) |
 | Get product / customer / transaction / delivery by id | `GetItem` |
 | Find customer by email (upsert) | `Query byEmail` |
-| Find transaction by idempotency key | `Query byIdempotencyKey` |
+| Find transaction by idempotency key | `GetItem` lock item `IDEMPOTENCY#<key>` (consistent) → `GetItem` transaction |
+| Find transaction by reference (webhook) | `Query byReference` |
 | Delivery of a transaction | `Query byTransaction` |
 
 ## Atomic writes (`TransactWriteItems`)
 
 **A. Create transaction** — plain `Put transactions` (status `PENDING`) with condition
 `attribute_not_exists(id)`. Stock is only *read* (use case returns `OUT_OF_STOCK` if `stock < quantity`).
+With an `Idempotency-Key` the put goes in one `TransactWriteItems` together with a **lock item**
+in the same table, `{ id: "IDEMPOTENCY#<key>", transactionId, createdAt }`, condition
+`attribute_not_exists(id)`. A failed lock condition means the key is taken → the use case returns
+the original transaction. GSIs are eventually consistent, so the lock (strongly consistent) is what
+prevents a double charge; the sparse `byIdempotencyKey` GSI is kept for diagnostics only. Lock
+items carry no `reference` / `idempotencyKey`, so they never appear in the GSIs.
 
 **B. Resolve APPROVED** (ADR-0011)
 1. `Update transactions` — set status, gatewayTransactionId, deliveryId, resolvedAt · condition `#status = :pending`
@@ -58,12 +65,14 @@ Cancellation reasons in B: item 1 failed → "already resolved" → re-read and 
 ```ts
 ProductRepository      findAll() · findById(id)
 CustomerRepository     findById(id) · findByEmail(email) · save(customer)
-TransactionRepository  findById(id) · findByIdempotencyKey(key) · create(tx)
+TransactionRepository  findById(id) · findByIdempotencyKey(key) · findByReference(ref) · create(tx, key?)
                        attachGatewayId(id, gatewayId) · resolveApproved(tx, delivery) [decrements stock] · resolveFailed(tx)
-DeliveryRepository     findById(id) · findByTransactionId(id) · updateAddress(id, address)
+DeliveryRepository     findById(id) · findByTransactionId(id) · updateAddress(delivery)
 ```
 
 All return `Promise<Result<…, DomainError>>`. Mappers (`toItem` / `toDomain`) live beside each adapter.
+The write methods report their condition outcome as a value (`CREATED | DUPLICATE_KEY`,
+`APPLIED | ALREADY_RESOLVED | OUT_OF_STOCK`), not as an error.
 
 ## Seed
 
