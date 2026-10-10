@@ -55,6 +55,7 @@ Ordered by dependency and by rubric value (PRD §7). Each row becomes a spec fol
 | 018 | `motion-emphasis` — larger travel, hero opening sequence and pointer depth, card hover, wide-screen hero | frontend | NFR-01, NFR-07 | Done |
 | 019 | `dark-fintech-redesign` — dark theme, new mark and illustrations, gradient-arc hero, live card preview | frontend | NFR-01, NFR-06, NFR-07 | Done |
 | 020 | `order-tracking-and-installments` — instalments in the summary, order journey and address correction, next steps after a failed payment, copy/print receipt | frontend | FR-07, FR-09, FR-10, FR-12 | Done |
+| 021 | `catalogue-pagination` — 18 products, `GET /products` paging/search/order, endless list on phones and numbered pages on wide screens | backend, frontend | FR-01, FR-12, NFR-01 | Done |
 
 Critical path if time runs short: 001 → 002 → 003 → 005 → 006 → 009 → 010 → 011 → 012 → 013 → 015 → 016.
 004 and 007 are small and can be folded into 006's PR; 008 is optional; 014 can be partially delivered inside 009/013.
