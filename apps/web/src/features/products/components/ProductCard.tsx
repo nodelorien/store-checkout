@@ -5,7 +5,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useId } from 'react';
 import type { Product } from '@/shared/api/types';
-import { clipWithoutScrolling } from '@/shared/motion';
+import { clipWithoutScrolling, motion } from '@/shared/motion';
 import { Money } from '@/shared/ui/atoms/Money';
 import { ResponsiveImage } from '@/shared/ui/molecules/ResponsiveImage';
 import { StockChip } from './StockChip';
@@ -17,7 +17,19 @@ interface ProductCardProps {
 }
 
 /** Pixels the product image drifts inside its frame as the card crosses the viewport. */
-const IMAGE_DRIFT = 8;
+const IMAGE_DRIFT = motion.parallax.imageTravel;
+
+/** With a mouse, an available product lifts slightly and its picture moves closer. */
+const hoverSx = {
+  '@media (hover: hover) and (prefers-reduced-motion: no-preference)': {
+    transition: `transform ${motion.duration.standard}ms ${motion.easing.standard}, border-color ${motion.duration.standard}ms`,
+    '&:hover': {
+      transform: `translate3d(0, ${-motion.distance.lift}px, 0)`,
+      borderColor: 'primary.light',
+    },
+    '&:hover img': { transform: 'scale(1.05)' },
+  },
+} as const;
 
 const clampLines = (lines: number) => ({
   display: '-webkit-box',
@@ -41,7 +53,9 @@ export function ProductCard({ product, imagePriority = 'lazy', onPay }: ProductC
         minWidth: 0,
         // The card clips its image; it must not become the scroller the image's drift tracks.
         ...clipWithoutScrolling,
+        ...(soldOut ? {} : hoverSx),
       }}
+      data-interactive={!soldOut}
     >
       <ResponsiveImage
         src={product.imageUrl}

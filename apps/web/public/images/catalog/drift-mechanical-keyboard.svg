@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Mechanical keyboard">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#181c2c"/><stop offset="1" stop-color="#0b0d14"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#6aa8ff" stop-opacity=".42"/><stop offset="1" stop-color="#6aa8ff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6aa8ff"/><stop offset="1" stop-color="#8f7bff"/></linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="400" cy="300" r="300" fill="url(#glow)"/>
+  <circle cx="400" cy="300" r="214" fill="none" stroke="#fff" stroke-opacity=".06"/>
+  <circle cx="400" cy="300" r="268" fill="none" stroke="#fff" stroke-opacity=".035"/>
+  <ellipse cx="400" cy="492" rx="210" ry="13" fill="#000" opacity=".5"/>
+  <path d="M400 248 C400 196 470 214 470 168" fill="none" stroke="#3a4263" stroke-width="6" stroke-linecap="round"/>
+  <rect x="176" y="248" width="448" height="196" rx="24" fill="#1a1e2e" stroke="url(#a)" stroke-width="3"/>
+  <rect x="196.0" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="227.6" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="259.2" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="290.8" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="322.4" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="354.0" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="385.6" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="417.2" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="448.8" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="480.4" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="512.0" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="543.6" y="268" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="575.2" y="268" width="25" height="26" rx="6" fill="url(#a)"/>
+  <rect x="196.0" y="302" width="25" height="26" rx="6" fill="url(#a)"/>
+  <rect x="227.6" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="259.2" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="290.8" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="322.4" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="354.0" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="385.6" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="417.2" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="448.8" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="480.4" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="512.0" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="543.6" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="575.2" y="302" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="210.0" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="241.6" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="273.2" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="304.8" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="336.4" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="368.0" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="399.6" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="431.2" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="462.8" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="494.4" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="526.0" y="336" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="557.6" y="336" width="25" height="26" rx="6" fill="url(#a)"/>
+  <rect x="224.0" y="370" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="255.6" y="370" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="287.2" y="370" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="318.8" y="370" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="350.4" y="370" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="382.0" y="370" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="413.6" y="370" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="445.2" y="370" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="476.8" y="370" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="508.4" y="370" width="25" height="26" rx="6" fill="#262c42"/>
+  <rect x="540.0" y="370" width="25" height="26" rx="6" fill="url(#a)"/>
+  <rect x="270" y="404" width="230" height="22" rx="7" fill="#262c42"/>
+  <rect x="508" y="404" width="60" height="22" rx="7" fill="url(#a)" opacity=".85"/>
+  <rect x="202" y="404" width="60" height="22" rx="7" fill="#262c42"/>
+</svg>

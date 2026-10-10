@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Coffee grinder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#181c2c"/><stop offset="1" stop-color="#0b0d14"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#b08cff" stop-opacity=".42"/><stop offset="1" stop-color="#b08cff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b08cff"/><stop offset="1" stop-color="#ff8fb8"/></linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="400" cy="300" r="300" fill="url(#glow)"/>
+  <circle cx="400" cy="300" r="214" fill="none" stroke="#fff" stroke-opacity=".06"/>
+  <circle cx="400" cy="300" r="268" fill="none" stroke="#fff" stroke-opacity=".035"/>
+  <ellipse cx="400" cy="492" rx="210" ry="13" fill="#000" opacity=".5"/>
+  <path d="M400 214 V186 H486" fill="none" stroke="#e9ecf7" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="494" cy="186" r="15" fill="url(#a)"/>
+  <rect x="380" y="208" width="40" height="14" rx="5" fill="#3a4263"/>
+  <path d="M306 222 H494 L466 300 H334 Z" fill="url(#a)" fill-opacity=".28" stroke="url(#a)" stroke-width="3" stroke-linejoin="round"/>
+  <ellipse cx="372" cy="262" rx="12" ry="7" transform="rotate(-24 372 262)" fill="#e9ecf7" opacity=".7"/>
+  <ellipse cx="412" cy="272" rx="12" ry="7" transform="rotate(18 412 272)" fill="#e9ecf7" opacity=".5"/>
+  <ellipse cx="440" cy="252" rx="11" ry="6" transform="rotate(-40 440 252)" fill="#e9ecf7" opacity=".6"/>
+  <rect x="322" y="300" width="156" height="184" rx="20" fill="#1a1e2e" stroke="#3a4263" stroke-width="2"/>
+  <circle cx="400" cy="368" r="34" fill="#0b0d14" stroke="url(#a)" stroke-width="4"/>
+  <path d="M400 368 V344" stroke="#e9ecf7" stroke-width="5" stroke-linecap="round"/>
+  <rect x="346" y="432" width="108" height="32" rx="10" fill="#262c42"/>
+  <rect x="384" y="444" width="32" height="8" rx="4" fill="#e9ecf7" opacity=".8"/>
+</svg>

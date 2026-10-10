@@ -55,3 +55,14 @@ export function isExpiryInFuture(expiry: ParsedExpiry, now: Date): boolean {
 
   return year > currentYear || (year === currentYear && month >= currentMonth);
 }
+
+const PREVIEW_LENGTH = 16;
+
+/**
+ * Card number as shown on the card preview: the digits typed so far followed by placeholders, in
+ * groups of four. Display only — the value never leaves the form.
+ */
+export function previewCardNumber(value: string): string {
+  const digits = onlyNumeric(value).slice(0, PREVIEW_LENGTH);
+  return digits.padEnd(PREVIEW_LENGTH, '•').replace(/(.{4})(?=.)/g, '$1 ');
+}
