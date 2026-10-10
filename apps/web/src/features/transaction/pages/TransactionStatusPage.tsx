@@ -4,12 +4,14 @@ import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { selectDelivery } from '@/features/checkout';
-import { useGetTransactionQuery } from '@/shared/api/baseApi';
+import { useGetTransactionDeliveryQuery, useGetTransactionQuery } from '@/shared/api/baseApi';
 import { isUiError } from '@/shared/api/uiError';
+import { DeliveryTracker } from '../components/DeliveryTracker';
+import { EditAddressDialog } from '../components/EditAddressDialog';
 import { TransactionStatus, type DeliveryRecap } from '../components/TransactionStatus';
 import { selectFlowTransactionId, selectPolling } from '../selectors';
 import { finishCheckout, pollTransaction, retryPayment } from '../thunks';
@@ -49,6 +51,9 @@ export function TransactionStatusPage() {
 
   const isCurrentFlow = flowTransactionId === id;
   const status = data?.status;
+  // The delivery exists only once the payment is approved.
+  const tracked = useGetTransactionDeliveryQuery(id, { skip: status !== 'APPROVED' });
+  const [editingAddress, setEditingAddress] = useState(false);
 
   useEffect(() => {
     if (status !== 'PENDING' || polling.timedOut) return undefined;
@@ -109,20 +114,34 @@ export function TransactionStatusPage() {
       : null;
 
   return (
-    <TransactionStatus
-      transaction={data}
-      pollingTimedOut={polling.timedOut}
-      delivery={delivery}
-      checking={isFetching}
-      onBackToStore={handleBackToStore}
-      onTryAgain={() => {
-        dispatch(retryPayment(data.product.id));
-        void navigate('/');
-      }}
-      onCheckAgain={() => {
-        dispatch(pollingRestarted());
-        void refetch();
-      }}
-    />
+    <>
+      <TransactionStatus
+        transaction={data}
+        pollingTimedOut={polling.timedOut}
+        delivery={delivery}
+        tracking={
+          tracked.data && (
+            <DeliveryTracker
+              delivery={tracked.data}
+              showAddress={isCurrentFlow}
+              onEditAddress={() => setEditingAddress(true)}
+            />
+          )
+        }
+        checking={isFetching}
+        onBackToStore={handleBackToStore}
+        onTryAgain={() => {
+          dispatch(retryPayment(data.product.id));
+          void navigate('/');
+        }}
+        onCheckAgain={() => {
+          dispatch(pollingRestarted());
+          void refetch();
+        }}
+      />
+      {editingAddress && tracked.data && (
+        <EditAddressDialog delivery={tracked.data} onClose={() => setEditingAddress(false)} />
+      )}
+    </>
   );
 }

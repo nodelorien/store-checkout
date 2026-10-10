@@ -108,6 +108,12 @@ export const theme = createTheme(base, {
         html: { WebkitTextSizeAdjust: '100%', colorScheme: 'dark' },
         body: { overflowWrap: 'anywhere', fontVariantNumeric: 'tabular-nums' },
         '::selection': { backgroundColor: alpha(base.palette.primary.main, 0.35) },
+        // A printed receipt: no chrome, no actions, dark ink on paper.
+        '@media print': {
+          'header, footer, [data-print-hide]': { display: 'none !important' },
+          'html, body': { backgroundColor: base.palette.common.white },
+          '*': { color: `${base.palette.common.black} !important`, boxShadow: 'none !important' },
+        },
         '@media (prefers-reduced-motion: reduce)': {
           '*, *::before, *::after': {
             animationDuration: '0.01ms !important',

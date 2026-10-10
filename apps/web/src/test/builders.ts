@@ -1,4 +1,4 @@
-import type { PaymentConfig, Product, Transaction } from '@/shared/api/types';
+import type { Delivery, PaymentConfig, Product, Transaction } from '@/shared/api/types';
 
 export const API_URL = 'http://localhost/api/v1';
 export const GATEWAY_TOKENIZATION_URL = 'https://gateway.test/v1/tokens/cards';
@@ -108,6 +108,28 @@ export function buildTransaction(overrides: Partial<Transaction> = {}): Transact
     deliveryId: '9c1b4c7e-3f0a-4c0f-8b43-6f5e7d8c9a12',
     createdAt: '2026-10-09T15:00:00.000Z',
     resolvedAt: '2026-10-09T15:00:02.000Z',
+    ...overrides,
+  };
+}
+
+export function buildDelivery(overrides: Partial<Delivery> = {}): Delivery {
+  return {
+    id: '9c1b4c7e-3f0a-4c0f-8b43-6f5e7d8c9a12',
+    transactionId: TRANSACTION_ID,
+    customerId: '5a0d3a51-58f4-4a53-9c63-0f3f8d2f7c11',
+    productId: PRODUCT_ID,
+    quantity: 1,
+    address: {
+      addressLine1: 'Cra 7 # 71-21',
+      addressLine2: 'Apto 501',
+      city: 'Bogotá',
+      region: 'Cundinamarca',
+      country: 'CO',
+      postalCode: '110231',
+    },
+    status: 'PENDING',
+    createdAt: '2026-10-09T15:00:02.000Z',
+    updatedAt: '2026-10-09T15:00:02.000Z',
     ...overrides,
   };
 }

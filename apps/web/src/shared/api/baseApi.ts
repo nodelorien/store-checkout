@@ -8,6 +8,8 @@ import { env } from '@/shared/config/env';
 import {
   isFinalStatus,
   type CreateTransactionArgs,
+  type Delivery,
+  type DeliveryAddressPatch,
   type PaymentConfig,
   type Product,
   type Transaction,
@@ -46,7 +48,7 @@ export const apiBaseQuery: BaseQueryFn<string | FetchArgs, unknown, UiError> = a
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: apiBaseQuery,
-  tagTypes: ['Products', 'PaymentConfig', 'Transaction'],
+  tagTypes: ['Products', 'PaymentConfig', 'Transaction', 'Delivery'],
   endpoints: (build) => ({
     getProducts: build.query<Product[], void>({
       query: () => '/products',
@@ -81,6 +83,24 @@ export const baseApi = createApi({
         }
       },
     }),
+    getTransactionDelivery: build.query<Delivery, string>({
+      query: (transactionId) => `/transactions/${encodeURIComponent(transactionId)}/delivery`,
+      providesTags: (_result, _error, transactionId) => [{ type: 'Delivery', id: transactionId }],
+    }),
+    updateDeliveryAddress: build.mutation<
+      Delivery,
+      { deliveryId: string; transactionId: string; address: DeliveryAddressPatch }
+    >({
+      query: ({ deliveryId, address }) => ({
+        url: `/deliveries/${encodeURIComponent(deliveryId)}`,
+        method: 'PATCH',
+        body: address,
+      }),
+      // Also on failure: a 409 means the delivery moved on, so the shown status is stale.
+      invalidatesTags: (_result, _error, { transactionId }) => [
+        { type: 'Delivery', id: transactionId },
+      ],
+    }),
   }),
 });
 
@@ -89,4 +109,6 @@ export const {
   useGetPaymentConfigQuery,
   useCreateTransactionMutation,
   useGetTransactionQuery,
+  useGetTransactionDeliveryQuery,
+  useUpdateDeliveryAddressMutation,
 } = baseApi;

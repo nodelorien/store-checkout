@@ -71,6 +71,38 @@ export interface Transaction {
   resolvedAt: string | null;
 }
 
+export const DELIVERY_STATUSES = ['PENDING', 'SHIPPED', 'DELIVERED'] as const;
+export type DeliveryStatus = (typeof DELIVERY_STATUSES)[number];
+
+export interface DeliveryAddress {
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  region: string;
+  country: string;
+  postalCode: string | null;
+}
+
+export interface Delivery {
+  id: string;
+  transactionId: string;
+  customerId: string;
+  productId: string;
+  quantity: number;
+  address: DeliveryAddress;
+  status: DeliveryStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** `PATCH /deliveries/:id`: any subset of the address; fields not sent are kept. */
+export type DeliveryAddressPatch = Partial<
+  Pick<DeliveryAddress, 'addressLine1' | 'city' | 'region'> & {
+    addressLine2: string;
+    postalCode: string;
+  }
+>;
+
 export function isFinalStatus(status: TransactionStatus): boolean {
   return status !== 'PENDING';
 }

@@ -1,4 +1,4 @@
-import type { Transaction, TransactionStatus } from '@/shared/api/types';
+import type { DeliveryStatus, Transaction, TransactionStatus } from '@/shared/api/types';
 
 export interface StatusContent {
   tone: 'success' | 'error' | 'info' | 'warning';
@@ -56,6 +56,52 @@ export function statusContentFor(
     };
   }
   return content;
+}
+
+const RETRY_STEPS = [
+  'Check the card number, expiry date and security code.',
+  'Make sure the card is enabled for online purchases and has available funds.',
+  'Try another card, or contact your bank if it keeps happening.',
+];
+
+/** What the customer can do next after a payment that did not go through. */
+export function nextStepsFor(status: TransactionStatus): readonly string[] {
+  if (status === 'DECLINED') return RETRY_STEPS;
+  if (status === 'ERROR' || status === 'VOIDED') return RETRY_STEPS.slice(2);
+  return [];
+}
+
+export type TrackingStepState = 'done' | 'current' | 'upcoming';
+export interface TrackingStep {
+  key: 'PAID' | DeliveryStatus;
+  label: string;
+  state: TrackingStepState;
+}
+
+const TRACKING: readonly Pick<TrackingStep, 'key' | 'label'>[] = [
+  { key: 'PAID', label: 'Payment approved' },
+  { key: 'PENDING', label: 'Preparing your order' },
+  { key: 'SHIPPED', label: 'On its way' },
+  { key: 'DELIVERED', label: 'Delivered' },
+];
+
+/**
+ * The order's journey for a delivery status. Everything before the delivery's own step is done;
+ * a delivered order has no step in progress.
+ */
+export function trackingStepsFor(status: DeliveryStatus): TrackingStep[] {
+  const reached = TRACKING.findIndex((step) => step.key === status);
+
+  return TRACKING.map((step, index) => {
+    const delivered = status === 'DELIVERED';
+    const state: TrackingStepState =
+      index < reached || (delivered && index === reached)
+        ? 'done'
+        : index === reached
+          ? 'current'
+          : 'upcoming';
+    return { ...step, state };
+  });
 }
 
 export type StatusMotion = 'draw' | 'nudge' | 'none';
