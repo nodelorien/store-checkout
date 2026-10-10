@@ -1,6 +1,6 @@
 # Spec 015 — AWS deployment
 
-- Status: Done (first deploy pending AWS credentials)
+- Status: Done
 - Component(s): infra
 - Branch: `feat/015-aws-deployment`
 - Traces to: NFR-04, NFR-05, NFR-06, NFR-08
@@ -39,4 +39,4 @@ workflow.
 - [x] T04 `Web` construct: bucket, distribution, SPA rewrite function, headers + tests (AC-4..AC-7)
 - [x] T05 Stack wiring, config from environment, outputs + tests (AC-8, AC-9)
 - [x] T06 Lambda bundling script, deploy workflow
-- [ ] T07 First deploy, seed, smoke test (needs AWS credentials — owner action)
+- [x] T07 First deploy, seed, smoke test (deployed to `us-east-2` on 2026-10-10)

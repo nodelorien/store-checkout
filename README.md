@@ -6,8 +6,8 @@ with updated stock.
 
 | | |
 |---|---|
-| Live app | _pending first deploy_ |
-| API docs (Swagger) | _pending first deploy_ — locally `http://localhost:3000/api/docs` |
+| Live app | <https://d1bup7lds8dkbd.cloudfront.net> |
+| API docs (Swagger) | <https://d1bup7lds8dkbd.cloudfront.net/api/docs> — locally `http://localhost:3000/api/docs` |
 | Stack | React 19 · MUI · Redux Toolkit / RTK Query · NestJS 11 · DynamoDB · AWS CDK · Jest |
 
 ## Flow
@@ -115,8 +115,11 @@ export PAYMENT_GATEWAY_BASE_URL='<sandbox base url>' PAYMENT_GATEWAY_PUBLIC_KEY=
 npm run build && npm run bundle:api -w infra
 npx cdk bootstrap --app "npx tsx infra/bin/app.ts"     # first time per account/region
 npm run deploy -w infra
-TABLE_PRODUCTS=checkout-prod-products npm run seed -w apps/api
+# the seed loads apps/api/.env when present, so override its local region and endpoint
+AWS_REGION="$(aws configure get region)" DYNAMODB_ENDPOINT= TABLE_PRODUCTS=checkout-prod-products npm run seed -w apps/api
 ```
+
+The stack deploys to the region of the active AWS profile; the live app runs in `us-east-2`.
 
 `.github/workflows/deploy.yml` does the same on pushes to `main` once the repository variables
 `AWS_DEPLOY_ROLE_ARN`, `PAYMENT_GATEWAY_BASE_URL` and `PAYMENT_GATEWAY_PUBLIC_KEY` exist.
