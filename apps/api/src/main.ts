@@ -1,11 +1,17 @@
 import 'reflect-metadata';
+import { existsSync } from 'node:fs';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { configureApp } from './bootstrap';
+import { APP_CONFIG, AppConfig } from './shared/config/app-config';
 
 async function main(): Promise<void> {
-  const app = configureApp(await NestFactory.create(AppModule));
-  await app.listen(Number(process.env.PORT ?? 3000));
+  if (existsSync('.env')) {
+    process.loadEnvFile('.env');
+  }
+  const app = configureApp(await NestFactory.create<NestExpressApplication>(AppModule));
+  await app.listen(app.get<AppConfig>(APP_CONFIG).port);
 }
 
 void main();
