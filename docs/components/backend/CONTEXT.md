@@ -40,7 +40,7 @@ apps/api/src/
         persistence/     dynamodb-*.repository.ts, mappers
         gateway/         (transactions only) payment gateway HTTP adapter
       <name>.module.ts
-  seed/                seed script + dummy products
+  seed/                seed + create-tables scripts, dummy products, optional seed Lambda handler
 ```
 
 ## Rules
@@ -74,4 +74,4 @@ execute(input: CreateTransactionInput): Promise<Result<TransactionView, DomainEr
 ## Commands (from repo root, once scaffolded)
 
 `npm run dev -w apps/api` · `npm run test -w apps/api` · `npm run test:cov -w apps/api` ·
-`npm run seed -w apps/api` · `docker compose up dynamodb` (local DB)
+`npm run tables:create -w apps/api` · `npm run seed -w apps/api` · `docker compose up dynamodb` (local DB)

@@ -10,14 +10,16 @@ import { TRANSACTION_REPOSITORY } from './application/ports/transaction-reposito
 import { TransactionReconciler } from './application/services/transaction-reconciler';
 import { CreateTransactionUseCase } from './application/use-cases/create-transaction.use-case';
 import { GetTransactionUseCase } from './application/use-cases/get-transaction.use-case';
+import { HandleGatewayEventUseCase } from './application/use-cases/handle-gateway-event.use-case';
 import { ResolveTransactionUseCase } from './application/use-cases/resolve-transaction.use-case';
 import { PaymentGatewayModule } from './infrastructure/gateway/payment-gateway.module';
+import { GatewayWebhookController } from './infrastructure/http/gateway-webhook.controller';
 import { TransactionsController } from './infrastructure/http/transactions.controller';
 import { DynamoDbTransactionRepository } from './infrastructure/persistence/dynamodb-transaction.repository';
 
 @Module({
   imports: [ProductsModule, CustomersModule, PaymentGatewayModule],
-  controllers: [TransactionsController],
+  controllers: [TransactionsController, GatewayWebhookController],
   providers: [
     { provide: TRANSACTION_REPOSITORY, useClass: DynamoDbTransactionRepository },
     {
@@ -32,6 +34,7 @@ import { DynamoDbTransactionRepository } from './infrastructure/persistence/dyna
     TransactionReconciler,
     CreateTransactionUseCase,
     GetTransactionUseCase,
+    HandleGatewayEventUseCase,
   ],
   exports: [TRANSACTION_REPOSITORY, ResolveTransactionUseCase],
 })

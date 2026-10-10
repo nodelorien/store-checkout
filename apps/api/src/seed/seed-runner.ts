@@ -5,11 +5,6 @@ import { createDocumentClient } from '../shared/dynamodb/dynamodb.client';
 import { SEED_PRODUCTS } from './products';
 import { tableDefinitions, TableNames } from './table-definitions';
 
-export interface SeedSettings {
-  readonly client: DynamoDBDocumentClient;
-  readonly tables: TableNames;
-}
-
 function required(name: string): string {
   const value = process.env[name]?.trim();
   if (!value) {
@@ -18,22 +13,28 @@ function required(name: string): string {
   return value;
 }
 
-/** Reads only what the scripts need (no gateway variables), from `.env` when present. */
-export function loadSeedSettings(): SeedSettings {
+/** Client for the scripts, configured from `.env` when present (no gateway variables needed). */
+export function loadSeedClient(): DynamoDBDocumentClient {
   if (existsSync('.env')) {
     process.loadEnvFile('.env');
   }
+  return createDocumentClient({
+    region: process.env.AWS_REGION ?? 'us-east-1',
+    dynamoEndpoint: process.env.DYNAMODB_ENDPOINT?.trim() || undefined,
+  });
+}
+
+/** The seed only needs the products table (this is what a deploy pipeline provides). */
+export function productsTableFromEnv(): string {
+  return required('TABLE_PRODUCTS');
+}
+
+export function tableNamesFromEnv(): TableNames {
   return {
-    client: createDocumentClient({
-      region: process.env.AWS_REGION ?? 'us-east-1',
-      dynamoEndpoint: process.env.DYNAMODB_ENDPOINT?.trim() || undefined,
-    }),
-    tables: {
-      products: required('TABLE_PRODUCTS'),
-      customers: required('TABLE_CUSTOMERS'),
-      transactions: required('TABLE_TRANSACTIONS'),
-      deliveries: required('TABLE_DELIVERIES'),
-    },
+    products: required('TABLE_PRODUCTS'),
+    customers: required('TABLE_CUSTOMERS'),
+    transactions: required('TABLE_TRANSACTIONS'),
+    deliveries: required('TABLE_DELIVERIES'),
   };
 }
 

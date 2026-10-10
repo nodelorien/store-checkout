@@ -25,7 +25,7 @@ No authentication (guest checkout); resource ids are unguessable UUIDs.
 | GET | `/transactions/:id/delivery` | 200 | delivery of an approved transaction |
 | GET | `/deliveries/:id` | 200 | one delivery |
 | PATCH | `/deliveries/:id` | 200 | amend address while delivery is `PENDING` |
-| POST | `/webhooks/payment-gateway` | 200 | gateway event (checksum-verified). Optional, see spec 008 |
+| POST | `/webhooks/payment-gateway` | 200 | gateway event (checksum-verified), answers `{ data: { received, handled } }` — spec 008 |
 
 ## Key payloads
 
@@ -101,6 +101,7 @@ Response `201` (and `GET /transactions/:id` → `200`)
 |---|---|
 | `VALIDATION_ERROR` | 400 (`details` = `[{ field, message }]`, nested fields as `customer.email`; also malformed JSON and non-UUID ids) |
 | `*_NOT_FOUND` | 404 |
+| `INVALID_SIGNATURE` (webhook only) | 401 |
 | `OUT_OF_STOCK`, `DELIVERY_NOT_EDITABLE` | 409 |
 | `PAYMENT_GATEWAY_REJECTED` | 422 (generic message; `details` carry `transactionId` and `reference` of the stored `ERROR` transaction) |
 | `NOT_FOUND` (unknown route) | 404 |
