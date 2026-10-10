@@ -39,13 +39,18 @@ Never add card number / CVC / expiry / holder to this shape.
 | Endpoint | Tags |
 |---|---|
 | `getProducts` (query) | provides `Products` |
+| `getProductsPage` (query, `{ page, pageSize, search, sort }`) | provides `Products`; returns `{ items, meta }` — the list on the product page |
 | `getPaymentConfig` (query) | provides `PaymentConfig` |
 | `createTransaction` (mutation) | invalidates `Products` and `PaymentConfig` (on success and failure) |
 | `getTransaction` (query) | provides `Transaction:{id}`; a final status invalidates `Products` |
 | `getTransactionDelivery` (query) | provides `Delivery:{transactionId}`; requested only for approved payments |
 | `updateDeliveryAddress` (mutation) | invalidates `Delivery:{transactionId}` (on success and failure) |
 
-`baseQuery` unwraps `{ data }` and normalises every failure into
+`getProducts` (the whole catalogue) stays in the cache because the checkout joins the selected
+product by id; the visible list pages through `getProductsPage`. The catalogue view (search,
+order, page) is routing state in the address bar (`?q=&sort=&page=`), not in the store.
+
+`baseQuery` unwraps `{ data }` (passing `meta` on to `transformResponse`) and normalises every failure into
 `UiError { code, message, status, requestId }`. `message` is our own copy mapped from `code`
 (`shared/api/uiError.ts`); server and gateway messages are never rendered verbatim.
 Base URL from `env.apiBaseUrl` (`/api/v1` in production — same origin).

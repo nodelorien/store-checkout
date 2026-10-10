@@ -46,6 +46,7 @@ Dark, finance-app look (spec 019): quiet surfaces, one accent, nothing decorativ
 
 | Component | MUI base | Notes |
 |---|---|---|
+| `Catalogue` | `Pagination` | toolbar (search, order, count) + list. Below `md`: six per request, appended on scroll or "Load more products". From `md`: eight per page with numbered pages. View in the URL |
 | `ProductCard` | `Card` | image (fixed aspect ratio), name, description, price, stock chip, CTA. Stock 0 → "Sold out", CTA disabled |
 | `CheckoutDialog` | `Dialog` | `fullScreen` below `sm`; scrollable content, sticky actions; order line with quantity stepper, sections "Card details" and "Delivery details", terms checkbox |
 | `CardPreview` | — | picture of the card being typed (number so far, holder, expiry, brand — never the CVC); `aria-hidden`; reads the form state only |
