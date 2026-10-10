@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Smartwatch">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe9e4"/>
+      <stop offset="1" stop-color="#f7b7a8"/>
+    </linearGradient>
+    <linearGradient id="strap" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b8442f"/>
+      <stop offset="1" stop-color="#d9644c"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="660" cy="110" r="160" fill="#ffffff" opacity=".28"/>
+  <circle cx="120" cy="520" r="180" fill="#ffffff" opacity=".2"/>
+  <path d="M320 0 H480 L466 190 H334 Z" fill="url(#strap)"/>
+  <path d="M334 410 H466 L480 600 H320 Z" fill="url(#strap)"/>
+  <g fill="#8f2f1e">
+    <circle cx="400" cy="470" r="7"/>
+    <circle cx="400" cy="505" r="7"/>
+    <circle cx="400" cy="540" r="7"/>
+    <circle cx="400" cy="575" r="7"/>
+  </g>
+  <rect x="496" y="270" width="18" height="60" rx="8" fill="#14212e"/>
+  <rect x="280" y="170" width="240" height="260" rx="62" fill="#14212e"/>
+  <rect x="298" y="188" width="204" height="224" rx="46" fill="#1f3246"/>
+  <circle cx="400" cy="300" r="82" fill="none" stroke="#33506d" stroke-width="14"/>
+  <path d="M400 218 a82 82 0 1 1 -71 123" fill="none" stroke="#f2a541" stroke-width="14" stroke-linecap="round"/>
+  <path d="M340 304 h26 l12 -30 l20 56 l14 -36 l10 10 h38" fill="none" stroke="#ff8f78" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="372" y="366" width="56" height="10" rx="5" fill="#ffffff" opacity=".7"/>
+</svg>
