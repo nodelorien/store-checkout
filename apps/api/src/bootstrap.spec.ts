@@ -186,6 +186,7 @@ describe('HTTP pipeline (configureApp)', () => {
     }
     expect((await get('payment-config')).headers['cache-control']).toBe('no-store');
     expect((await get('transactions/unknown/route')).headers['cache-control']).toBe('no-store');
+    expect((await get('reports/summary')).headers['cache-control']).toBe('no-store');
   });
 
   it('AC-10: lets products be revalidated', async () => {

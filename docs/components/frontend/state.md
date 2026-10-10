@@ -13,10 +13,12 @@ Flux, unidirectional: **view → action/thunk → reducer → selector → view*
 ```ts
 {
   api: RTKQueryState,                 // products, paymentConfig, transactions cache
+  orders: { items: { id, reference, placedAt }[] },  // this device's purchases (spec 022)
   checkout: {
     step: 'PRODUCTS' | 'PAYMENT_INFO' | 'SUMMARY' | 'STATUS',
     productId: string | null,
     quantity: number,
+    installments: number,            // one of 1, 2, 3, 6, 12, 24, 36 (spec 020)
     delivery: { fullName, email, phone, addressLine1, addressLine2, city, region, postalCode } | null,
     card: { tokenId: string, brand: 'VISA' | 'MASTERCARD', lastFour: string, expiresAt: string } | null,
     acceptedTerms: boolean,
@@ -38,11 +40,19 @@ Never add card number / CVC / expiry / holder to this shape.
 | Endpoint | Tags |
 |---|---|
 | `getProducts` (query) | provides `Products` |
+| `getProductsPage` (query, `{ page, pageSize, search, sort }`) | provides `Products`; returns `{ items, meta }` — the list on the product page |
 | `getPaymentConfig` (query) | provides `PaymentConfig` |
 | `createTransaction` (mutation) | invalidates `Products` and `PaymentConfig` (on success and failure) |
 | `getTransaction` (query) | provides `Transaction:{id}`; a final status invalidates `Products` |
+| `getTransactionDelivery` (query) | provides `Delivery:{transactionId}`; requested only for approved payments |
+| `getSalesSummary` (query, `days`) | not tagged; re-read whenever Insights is shown |
+| `updateDeliveryAddress` (mutation) | invalidates `Delivery:{transactionId}` (on success and failure) |
 
-`baseQuery` unwraps `{ data }` and normalises every failure into
+`getProducts` (the whole catalogue) stays in the cache because the checkout joins the selected
+product by id; the visible list pages through `getProductsPage`. The catalogue view (search,
+order, page) is routing state in the address bar (`?q=&sort=&page=`), not in the store.
+
+`baseQuery` unwraps `{ data }` (passing `meta` on to `transformResponse`) and normalises every failure into
 `UiError { code, message, status, requestId }`. `message` is our own copy mapped from `code`
 (`shared/api/uiError.ts`); server and gateway messages are never rendered verbatim.
 Base URL from `env.apiBaseUrl` (`/api/v1` in production — same origin).
@@ -83,7 +93,7 @@ Storage key `checkout:v1`. Snapshot fields:
 
 ```ts
 { version: 1, savedAt: ISO,
-  checkout: { step, productId, quantity, delivery, card: { tokenId, brand, lastFour, expiresAt },
+  checkout: { step, productId, quantity, installments, delivery, card: { tokenId, brand, lastFour, expiresAt },
               acceptedTerms, idempotencyKey },
   transaction: { id, reference, status } }
 ```
@@ -95,6 +105,13 @@ Rules:
 - Removed when the flow is reset (`finishCheckout`, sold out, product unavailable); an expired card token is dropped from it.
 - Delivery data is personal data: it stays on the device, is cleared at the end of the flow, and
   is never sent anywhere except our API.
+
+### Orders (`features/account`)
+
+`orders` is filled by `createTransaction` succeeding (newest first, no duplicates, at most 20)
+and stored under its own key, `orders:v1`, by its own listener — separate from the checkout
+snapshot, which expires after a day. It is written field by field (id, reference, date) and read
+back through a Zod schema, so it can never carry customer, address or card data.
 
 ## Flux alignment checklist
 

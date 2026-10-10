@@ -34,6 +34,7 @@ describe('toSnapshot', () => {
         step: 'STATUS',
         productId: PRODUCT_ID,
         quantity: 1,
+        installments: 1,
         delivery: statusState().checkout.delivery,
         card: {
           tokenId: 'tok_test_123',
@@ -203,5 +204,22 @@ describe('fromSnapshot', () => {
     const restored = fromSnapshot(JSON.parse(JSON.stringify(toSnapshot(state, NOW))), NOW);
 
     expect(restored?.checkout.step).toBe('PRODUCTS');
+  });
+});
+
+describe('instalments in the snapshot', () => {
+  it('AC-2: keeps the chosen instalments across a reload', () => {
+    const state = statusState();
+    const saved = toSnapshot({ ...state, checkout: { ...state.checkout, installments: 12 } }, NOW);
+
+    expect(fromSnapshot(saved, NOW)?.checkout.installments).toBe(12);
+  });
+
+  it('AC-2: restores a snapshot saved before instalments existed as a single payment', () => {
+    const { checkout, ...rest } = toSnapshot(statusState(), NOW);
+    const legacyCheckout: Partial<typeof checkout> = { ...checkout };
+    delete legacyCheckout.installments;
+
+    expect(fromSnapshot({ ...rest, checkout: legacyCheckout }, NOW)?.checkout.installments).toBe(1);
   });
 });

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Wireless earbuds">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#181c2c"/><stop offset="1" stop-color="#0b0d14"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#b08cff" stop-opacity=".42"/><stop offset="1" stop-color="#b08cff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b08cff"/><stop offset="1" stop-color="#6aa8ff"/></linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="400" cy="300" r="300" fill="url(#glow)"/>
+  <circle cx="400" cy="300" r="214" fill="none" stroke="#fff" stroke-opacity=".06"/>
+  <circle cx="400" cy="300" r="268" fill="none" stroke="#fff" stroke-opacity=".035"/>
+  <ellipse cx="400" cy="492" rx="210" ry="13" fill="#000" opacity=".5"/>
+  <rect x="270" y="330" width="260" height="150" rx="52" fill="#1a1e2e" stroke="#3a4263" stroke-width="2"/>
+  <path d="M270 372 H530" stroke="#3a4263" stroke-width="3"/>
+  <circle cx="400" cy="424" r="6" fill="#b08cff"/>
+  <path d="M312 300 v-58 a34 34 0 1 1 30 34 v24 Z" fill="#262c42" stroke="url(#a)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M488 300 v-58 a34 34 0 1 0 -30 34 v24 Z" fill="#262c42" stroke="url(#a)" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="340" cy="240" r="9" fill="#e9ecf7" opacity=".85"/><circle cx="460" cy="240" r="9" fill="#e9ecf7" opacity=".85"/>
+</svg>

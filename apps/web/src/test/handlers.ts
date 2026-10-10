@@ -3,8 +3,10 @@ import {
   API_URL,
   GATEWAY_TOKENIZATION_URL,
   buildCatalogue,
+  buildDelivery,
   buildGatewayTokenResponse,
   buildPaymentConfig,
+  buildSalesSummary,
   buildTransaction,
 } from './builders';
 
@@ -18,6 +20,10 @@ export const handlers = [
   http.get(`${API_URL}/transactions/:id`, ({ params }) =>
     HttpResponse.json({ data: buildTransaction({ id: String(params.id) }) }),
   ),
+  http.get(`${API_URL}/transactions/:id/delivery`, ({ params }) =>
+    HttpResponse.json({ data: buildDelivery({ transactionId: String(params.id) }) }),
+  ),
+  http.get(`${API_URL}/reports/summary`, () => HttpResponse.json({ data: buildSalesSummary() })),
   http.post(GATEWAY_TOKENIZATION_URL, () =>
     HttpResponse.json(buildGatewayTokenResponse(), { status: 201 }),
   ),

@@ -30,7 +30,7 @@ apps/api/src/
     dynamodb/        DocumentClient provider
     http/            filters, interceptors (logging w/ redaction), result-to-response helper
   modules/
-    products/ customers/ transactions/ deliveries/ payment-config/
+    products/ customers/ transactions/ deliveries/ payment-config/ reports/
       domain/            entities, value objects — pure TS
       application/
         ports/           *.port.ts  (interface + injection token)

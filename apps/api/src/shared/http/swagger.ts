@@ -60,6 +60,42 @@ export function ApiDataResponse(
   );
 }
 
+export class PageMetaModel {
+  @ApiProperty({ example: 1, minimum: 1 })
+  page!: number;
+
+  @ApiProperty({ example: 12, minimum: 1, description: 'Never 0, even for an empty result' })
+  pageSize!: number;
+
+  @ApiProperty({ example: 18, minimum: 0, description: 'Items matching the query, on every page' })
+  total!: number;
+
+  @ApiProperty({ example: 2, minimum: 1 })
+  totalPages!: number;
+}
+
+/** Documents a `{ data: Model[], meta: PageMetaModel }` success envelope. */
+export function ApiPagedResponse(
+  model: Type<unknown>,
+  options: { description: string },
+): MethodDecorator {
+  return applyDecorators(
+    ApiExtraModels(model, PageMetaModel),
+    ApiResponse({
+      status: 200,
+      description: options.description,
+      schema: {
+        type: 'object',
+        required: ['data', 'meta'],
+        properties: {
+          data: { type: 'array', items: { $ref: getSchemaPath(model) } },
+          meta: { $ref: getSchemaPath(PageMetaModel) },
+        },
+      },
+    }),
+  );
+}
+
 /** Documents the error envelope for each given status (429 and 500 are always possible). */
 export function ApiErrorResponses(...statuses: number[]): MethodDecorator {
   const all = [...new Set([...statuses, 429, 500])].sort((a, b) => a - b);

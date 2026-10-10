@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="USB-C hub">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#181c2c"/><stop offset="1" stop-color="#0b0d14"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#6aa8ff" stop-opacity=".42"/><stop offset="1" stop-color="#6aa8ff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6aa8ff"/><stop offset="1" stop-color="#9f8bff"/></linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="400" cy="300" r="300" fill="url(#glow)"/>
+  <circle cx="400" cy="300" r="214" fill="none" stroke="#fff" stroke-opacity=".06"/>
+  <circle cx="400" cy="300" r="268" fill="none" stroke="#fff" stroke-opacity=".035"/>
+  <ellipse cx="400" cy="492" rx="210" ry="13" fill="#000" opacity=".5"/>
+  <path d="M546 330 C620 330 610 230 540 236 C486 240 500 180 552 176" fill="none" stroke="#3a4263" stroke-width="8" stroke-linecap="round"/>
+  <rect x="540" y="160" width="44" height="30" rx="8" fill="#262c42" stroke="url(#a)" stroke-width="3"/>
+  <rect x="228" y="288" width="318" height="84" rx="22" fill="#1a1e2e" stroke="url(#a)" stroke-width="3"/>
+  <rect x="258" y="322" width="32" height="14" rx="5" fill="#0b0d14" stroke="#3a4263" stroke-width="2"/><rect x="308" y="322" width="32" height="14" rx="5" fill="#0b0d14" stroke="#3a4263" stroke-width="2"/><rect x="358" y="322" width="32" height="14" rx="5" fill="#0b0d14" stroke="#3a4263" stroke-width="2"/><rect x="408" y="322" width="32" height="14" rx="5" fill="#0b0d14" stroke="#3a4263" stroke-width="2"/><rect x="458" y="322" width="32" height="14" rx="5" fill="#0b0d14" stroke="#3a4263" stroke-width="2"/>
+  <circle cx="512" cy="330" r="6" fill="#6aa8ff"/>
+  <ellipse cx="388" cy="400" rx="170" ry="10" fill="#000" opacity=".35"/>
+</svg>

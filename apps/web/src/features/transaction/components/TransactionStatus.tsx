@@ -1,18 +1,24 @@
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutlined';
+import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import { alpha, keyframes } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
+import { useState, type ReactNode } from 'react';
 import type { Transaction } from '@/shared/api/types';
 import { motion, revealSx, useReducedMotion, useReveal } from '@/shared/motion';
+import { visuallyHidden } from '@/shared/ui/atoms/visuallyHidden';
 import { Money } from '@/shared/ui/atoms/Money';
 import {
   canRetryPayment,
+  nextStepsFor,
   statusContentFor,
   statusMotionFor,
   type StatusContent,
@@ -28,6 +34,8 @@ interface TransactionStatusProps {
   pollingTimedOut: boolean;
   /** Address of the order, when known (only the customer's own device has it). */
   delivery: DeliveryRecap | null;
+  /** Order tracking, shown instead of the plain address once the delivery is known. */
+  tracking?: ReactNode;
   checking: boolean;
   onBackToStore: () => void;
   onTryAgain: () => void;
@@ -116,6 +124,7 @@ export function TransactionStatus({
   transaction,
   pollingTimedOut,
   delivery,
+  tracking,
   checking,
   onBackToStore,
   onTryAgain,
@@ -126,6 +135,15 @@ export function TransactionStatus({
   const { amounts, currency } = transaction;
   const iconMotion = statusMotionFor(content.tone, useReducedMotion());
   const reveal = useReveal<HTMLDivElement>();
+  const nextSteps = nextStepsFor(transaction.status);
+  const [copied, setCopied] = useState(false);
+
+  const copyReference = () => {
+    void navigator.clipboard
+      ?.writeText(transaction.reference)
+      .then(() => setCopied(true))
+      .catch(() => setCopied(false));
+  };
 
   return (
     <Paper
@@ -186,6 +204,20 @@ export function TransactionStatus({
             >
               {transaction.reference}
             </Box>
+            <IconButton
+              size="small"
+              aria-label="Copy reference"
+              onClick={copyReference}
+              data-print-hide
+              sx={{ ml: 0.5, my: -1 }}
+            >
+              <ContentCopyIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+            {copied && (
+              <Box component="span" role="status" sx={visuallyHidden}>
+                Reference copied
+              </Box>
+            )}
           </Row>
           <Row label="Product">
             {transaction.product.name} × {transaction.quantity}
@@ -208,7 +240,24 @@ export function TransactionStatus({
           </Row>
         </Stack>
 
-        {transaction.status === 'APPROVED' && delivery && (
+        {nextSteps.length > 0 && (
+          <Box>
+            <Typography variant="subtitle2" component="h3" color="text.secondary">
+              What you can do
+            </Typography>
+            <Box component="ul" sx={{ m: 0, mt: 1, pl: 2.5, color: 'text.secondary' }}>
+              {nextSteps.map((step) => (
+                <Typography component="li" variant="body2" key={step} sx={{ mb: 0.5 }}>
+                  {step}
+                </Typography>
+              ))}
+            </Box>
+          </Box>
+        )}
+
+        {tracking}
+
+        {transaction.status === 'APPROVED' && delivery && !tracking && (
           <Box>
             <Typography variant="subtitle2" component="h3" color="text.secondary">
               Delivering to
@@ -218,7 +267,7 @@ export function TransactionStatus({
           </Box>
         )}
 
-        <Stack direction={{ xs: 'column', sm: 'row-reverse' }} spacing={1.5}>
+        <Stack direction={{ xs: 'column', sm: 'row-reverse' }} spacing={1.5} data-print-hide>
           {canRetryPayment(transaction.status) && (
             <Button variant="contained" size="large" fullWidth onClick={onTryAgain}>
               Try again
@@ -244,6 +293,18 @@ export function TransactionStatus({
             Back to store
           </Button>
         </Stack>
+
+        {transaction.status === 'APPROVED' && (
+          <Button
+            size="small"
+            startIcon={<PrintOutlinedIcon />}
+            onClick={() => window.print()}
+            data-print-hide
+            sx={{ alignSelf: 'center' }}
+          >
+            Print receipt
+          </Button>
+        )}
       </Stack>
     </Paper>
   );

@@ -1,11 +1,22 @@
-import { Controller, Get, Inject, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Inject, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { DataEnvelope, toResponse } from '../../../../shared/http/responder';
-import { ApiDataResponse, ApiErrorResponses } from '../../../../shared/http/swagger';
+import {
+  DataEnvelope,
+  ListEnvelope,
+  toListResponse,
+  toResponse,
+} from '../../../../shared/http/responder';
+import {
+  ApiDataResponse,
+  ApiErrorResponses,
+  ApiPagedResponse,
+} from '../../../../shared/http/swagger';
+import { PageMeta } from '../../domain/catalogue-query';
 import { GetProductStockUseCase } from '../../application/use-cases/get-product-stock.use-case';
 import { GetProductUseCase } from '../../application/use-cases/get-product.use-case';
 import { ListProductsUseCase } from '../../application/use-cases/list-products.use-case';
 import { ProductStockView, ProductView } from '../../application/use-cases/product.views';
+import { ListProductsDto } from './dto/list-products.dto';
 import { ProductResponseDto, ProductStockResponseDto } from './dto/product.response.dto';
 
 @ApiTags('products')
@@ -18,11 +29,16 @@ export class ProductsController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'List products with their current stock' })
-  @ApiDataResponse(ProductResponseDto, { isArray: true, description: 'The catalogue' })
-  @ApiErrorResponses()
-  async list(): Promise<DataEnvelope<ProductView[]>> {
-    return toResponse(await this.listProducts.execute());
+  @ApiOperation({
+    summary: 'List products with their current stock',
+    description:
+      'Optional search, sort and paging. Without pageSize every matching product comes in one ' +
+      'page. A page beyond the last one answers 200 with an empty list.',
+  })
+  @ApiPagedResponse(ProductResponseDto, { description: 'The catalogue page and its paging facts' })
+  @ApiErrorResponses(400)
+  async list(@Query() query: ListProductsDto): Promise<ListEnvelope<ProductView, PageMeta>> {
+    return toListResponse(await this.listProducts.execute(query));
   }
 
   @Get(':id')

@@ -1,4 +1,10 @@
-import { canRetryPayment, statusContentFor, statusMotionFor } from './statusContent';
+import {
+  canRetryPayment,
+  nextStepsFor,
+  statusContentFor,
+  statusMotionFor,
+  trackingStepsFor,
+} from './statusContent';
 
 describe('statusContentFor', () => {
   it.each([
@@ -68,4 +74,31 @@ describe('statusMotionFor', () => {
       expect(statusMotionFor(tone, true)).toBe('none');
     },
   );
+});
+
+describe('nextStepsFor', () => {
+  it('AC-6: a declined card gets the full checklist', () => {
+    expect(nextStepsFor('DECLINED')).toHaveLength(3);
+  });
+
+  it.each(['ERROR', 'VOIDED'] as const)(
+    'AC-6: %s only suggests another card or the bank',
+    (status) => {
+      expect(nextStepsFor(status)).toEqual([expect.stringMatching(/another card/)]);
+    },
+  );
+
+  it.each(['APPROVED', 'PENDING'] as const)('AC-6: %s needs no advice', (status) => {
+    expect(nextStepsFor(status)).toEqual([]);
+  });
+});
+
+describe('trackingStepsFor', () => {
+  it.each([
+    ['PENDING', ['done', 'current', 'upcoming', 'upcoming']],
+    ['SHIPPED', ['done', 'done', 'current', 'upcoming']],
+    ['DELIVERED', ['done', 'done', 'done', 'done']],
+  ] as const)('AC-3: %s', (status, expected) => {
+    expect(trackingStepsFor(status).map((step) => step.state)).toEqual(expected);
+  });
 });

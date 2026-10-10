@@ -106,6 +106,16 @@ export const deliverySchema = z.object({
     ),
 });
 
+/** The part of the delivery a customer may still correct after paying. */
+export const deliveryAddressSchema = deliverySchema.pick({
+  addressLine1: true,
+  addressLine2: true,
+  city: true,
+  region: true,
+  postalCode: true,
+});
+export type DeliveryAddressFormValues = z.input<typeof deliveryAddressSchema>;
+
 export function createPaymentInfoSchema(now?: () => Date) {
   return z.object({
     card: createCardSchema(now),

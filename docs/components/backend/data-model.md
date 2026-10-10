@@ -29,12 +29,20 @@ customers 1 ──── n transactions n ──── 1 products
 
 | Pattern | Operation |
 |---|---|
-| List products | `Scan products` (≤ 20 seeded items; acceptable, documented) |
+| List products | `Scan products` (18 seeded items), then search / sort / page **in memory** in the use case |
+| Sales summary (reports) | paged `Scan transactions`, filter `createdAt >= :from AND attribute_exists(status)`, projection of 7 aggregate attributes |
 | Get product / customer / transaction / delivery by id | `GetItem` |
 | Find customer by email (upsert) | `Query byEmail` |
 | Find transaction by idempotency key | `GetItem` lock item `IDEMPOTENCY#<key>` (consistent) → `GetItem` transaction |
 | Find transaction by reference (webhook) | `Query byReference` |
 | Delivery of a transaction | `Query byTransaction` |
+
+In-memory paging reads the whole catalogue on every request: fine for hundreds of products, not
+for millions (that needs a keyed/indexed query and cursor paging). The reports scan reads the
+whole transactions table and filters server-side — cost grows with the table, not with `days`;
+past a few thousand transactions add a GSI on a day bucket + `createdAt`. Its projection holds
+only status, productId, productName, quantity, totalInCents, cardBrand, createdAt (no PII), and
+the `attribute_exists(status)` filter skips the idempotency lock items.
 
 ## Atomic writes (`TransactWriteItems`)
 
@@ -68,6 +76,7 @@ CustomerRepository     findById(id) · findByEmail(email) · save(customer)
 TransactionRepository  findById(id) · findByIdempotencyKey(key) · findByReference(ref) · create(tx, key?)
                        attachGatewayId(id, gatewayId) · resolveApproved(tx, delivery) [decrements stock] · resolveFailed(tx)
 DeliveryRepository     findById(id) · findByTransactionId(id) · updateAddress(delivery)
+SalesRecordsPort       findCreatedSince(isoInstant)   (reports module; read-only, transactions table)
 ```
 
 All return `Promise<Result<…, DomainError>>`. Mappers (`toItem` / `toDomain`) live beside each adapter.
@@ -76,7 +85,7 @@ The write methods report their condition outcome as a value (`CREATED | DUPLICAT
 
 ## Seed
 
-`apps/api/src/seed/` — idempotent script (`PutItem` with fixed UUIDs) inserting 6 dummy products
+`apps/api/src/seed/` — idempotent script (`PutItem` with fixed UUIDs) inserting 18 dummy products
 with realistic names, descriptions, COP prices, varied stock (include one with stock 1 and one
 with stock 0 to exercise edge cases) and `imageUrl` pointing to SVG files shipped with
 the web app (`/images/catalog/<slug>.svg`). Run locally via `npm run seed -w apps/api`; in AWS

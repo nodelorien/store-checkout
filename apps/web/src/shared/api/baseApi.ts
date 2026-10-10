@@ -3,13 +3,20 @@ import {
   fetchBaseQuery,
   type BaseQueryFn,
   type FetchArgs,
+  type FetchBaseQueryMeta,
 } from '@reduxjs/toolkit/query/react';
 import { env } from '@/shared/config/env';
 import {
   isFinalStatus,
+  type CatalogueQuery,
   type CreateTransactionArgs,
+  type Delivery,
+  type DeliveryAddressPatch,
+  type PageMeta,
   type PaymentConfig,
   type Product,
+  type ProductsPage,
+  type SalesSummary,
   type Transaction,
 } from './types';
 import { createUiError, toUiError, type UiError } from './uiError';
@@ -26,12 +33,44 @@ function hasData(body: unknown): body is { data: unknown } {
   return typeof body === 'object' && body !== null && 'data' in body;
 }
 
+/** What the envelope carries besides `data`; endpoints read it in `transformResponse`. */
+export type ApiMeta = FetchBaseQueryMeta & { page?: unknown };
+
+function isPageMeta(value: unknown): value is PageMeta {
+  if (typeof value !== 'object' || value === null) return false;
+  const meta = value as Record<string, unknown>;
+  return ['page', 'pageSize', 'total', 'totalPages'].every((key) => Number.isInteger(meta[key]));
+}
+
+/** Page of products; an answer without `meta` is treated as the whole catalogue in one page. */
+export function toProductsPage(items: Product[], meta: unknown): ProductsPage {
+  return {
+    items,
+    meta: isPageMeta(meta)
+      ? meta
+      : { page: 1, pageSize: Math.max(1, items.length), total: items.length, totalPages: 1 },
+  };
+}
+
+export function catalogueParams(query: CatalogueQuery): Record<string, string | number> {
+  const search = query.search.trim();
+  return {
+    page: query.page,
+    pageSize: query.pageSize,
+    ...(search ? { search } : {}),
+    // Always explicit: without it the API keeps its original alphabetical order.
+    sort: query.sort,
+  };
+}
+
 /** Unwraps the `{ data }` envelope and turns every failure into a `UiError`. */
-export const apiBaseQuery: BaseQueryFn<string | FetchArgs, unknown, UiError> = async (
-  args,
-  api,
-  extraOptions,
-) => {
+export const apiBaseQuery: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  UiError,
+  object,
+  ApiMeta
+> = async (args, api, extraOptions) => {
   const result = await rawBaseQuery(args, api, extraOptions);
 
   if (result.error) {
@@ -40,16 +79,22 @@ export const apiBaseQuery: BaseQueryFn<string | FetchArgs, unknown, UiError> = a
   if (!hasData(result.data)) {
     return { error: createUiError('UNEXPECTED_RESPONSE', result.meta?.response?.status ?? null) };
   }
-  return { data: result.data.data };
+  const page = 'meta' in result.data ? result.data.meta : undefined;
+  return { data: result.data.data, meta: result.meta && { ...result.meta, page } };
 };
 
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: apiBaseQuery,
-  tagTypes: ['Products', 'PaymentConfig', 'Transaction'],
+  tagTypes: ['Products', 'PaymentConfig', 'Transaction', 'Delivery'],
   endpoints: (build) => ({
     getProducts: build.query<Product[], void>({
       query: () => '/products',
+      providesTags: ['Products'],
+    }),
+    getProductsPage: build.query<ProductsPage, CatalogueQuery>({
+      query: (query) => ({ url: '/products', params: catalogueParams(query) }),
+      transformResponse: (items: Product[], meta) => toProductsPage(items, meta?.page),
       providesTags: ['Products'],
     }),
     getPaymentConfig: build.query<PaymentConfig, void>({
@@ -81,12 +126,37 @@ export const baseApi = createApi({
         }
       },
     }),
+    getSalesSummary: build.query<SalesSummary, number>({
+      query: (days) => ({ url: '/reports/summary', params: { days } }),
+    }),
+    getTransactionDelivery: build.query<Delivery, string>({
+      query: (transactionId) => `/transactions/${encodeURIComponent(transactionId)}/delivery`,
+      providesTags: (_result, _error, transactionId) => [{ type: 'Delivery', id: transactionId }],
+    }),
+    updateDeliveryAddress: build.mutation<
+      Delivery,
+      { deliveryId: string; transactionId: string; address: DeliveryAddressPatch }
+    >({
+      query: ({ deliveryId, address }) => ({
+        url: `/deliveries/${encodeURIComponent(deliveryId)}`,
+        method: 'PATCH',
+        body: address,
+      }),
+      // Also on failure: a 409 means the delivery moved on, so the shown status is stale.
+      invalidatesTags: (_result, _error, { transactionId }) => [
+        { type: 'Delivery', id: transactionId },
+      ],
+    }),
   }),
 });
 
 export const {
   useGetProductsQuery,
+  useGetProductsPageQuery,
   useGetPaymentConfigQuery,
   useCreateTransactionMutation,
   useGetTransactionQuery,
+  useGetSalesSummaryQuery,
+  useGetTransactionDeliveryQuery,
+  useUpdateDeliveryAddressMutation,
 } = baseApi;

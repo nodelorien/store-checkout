@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { OrdersPage } from '@/features/account';
 import { selectCheckoutStep } from '@/features/checkout';
+import { InsightsPage } from '@/features/insights';
 import { ProductsPage } from '@/features/products';
 import { TransactionStatusPage, selectFlowTransactionId } from '@/features/transaction';
 import { NotFoundPage } from '@/shared/ui/pages/NotFoundPage';
@@ -25,6 +27,8 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<StoreRoute />} />
       <Route path="/transactions/:id" element={<TransactionStatusPage />} />
+      <Route path="/orders" element={<OrdersPage />} />
+      <Route path="/insights" element={<InsightsPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

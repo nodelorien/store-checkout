@@ -14,7 +14,7 @@ No authentication (guest checkout); resource ids are unguessable UUIDs.
 | Method | Path | Success | Purpose |
 |---|---|---|---|
 | GET | `/health` | 200 | liveness |
-| GET | `/products` | 200 | list products with stock |
+| GET | `/products` | 200 | list products with stock; optional search, sort, paging |
 | GET | `/products/:id` | 200 | one product |
 | GET | `/products/:id/stock` | 200 | `{ productId, stock, updatedAt }` — explicit stock resource (FR-12) |
 | GET | `/payment-config` | 200 | gateway public key, tokenization URL, acceptance info, fees |
@@ -26,14 +26,36 @@ No authentication (guest checkout); resource ids are unguessable UUIDs.
 | GET | `/deliveries/:id` | 200 | one delivery |
 | PATCH | `/deliveries/:id` | 200 | amend address while delivery is `PENDING` |
 | POST | `/webhooks/payment-gateway` | 200 | gateway event (checksum-verified), answers `{ data: { received, handled } }` — spec 008 |
+| GET | `/reports/summary` | 200 | sales and payment aggregates of the last days; no personal data |
 
 ## Key payloads
 
-`GET /products` → `200`
+`GET /products?page&pageSize&search&sort` → `200` (all four optional; `meta` is always present)
 ```json
 { "data": [ { "id": "uuid", "name": "…", "description": "…", "priceInCents": 12990000,
-              "currency": "COP", "imageUrl": "/images/catalog/<slug>.svg", "stock": 12 } ] }
+              "currency": "COP", "imageUrl": "/images/catalog/<slug>.svg", "stock": 12 } ],
+  "meta": { "page": 1, "pageSize": 12, "total": 18, "totalPages": 2 } }
 ```
+- `page`: int ≥ 1 (default 1). `pageSize`: int 1–48; absent = no paging: every match in one page, `page` ignored, `meta` = `{ page: 1, pageSize: total (1 if 0), total, totalPages: 1 }`.
+- `search`: trimmed, ≤ 60 chars, case-insensitive substring of `name` or `description`; empty = no filter.
+- `sort`: `name` (default, A→Z — the historical order, spec 003 AC-1) · `featured` (curated: seed order) · `price-asc` · `price-desc`. Ties: name, then id.
+- `total` counts matches after `search`; `totalPages` = max(1, ceil(total / pageSize)). A `page` past the end → `200`, `data: []`.
+
+`GET /reports/summary?days` → `200` — `days`: int 1–90 (default 14), calendar days in `America/Bogota` (UTC−5) ending today
+```json
+{ "data": { "currency": "COP", "range": { "from": "2026-09-27", "to": "2026-10-10", "days": 14 },
+    "totals": { "revenueInCents": 0, "approvedOrders": 0, "unitsSold": 0,
+                "averageOrderInCents": 0, "totalAttempts": 0, "approvalRate": 0 },
+    "salesByDay": [ { "date": "2026-09-27", "revenueInCents": 0, "orders": 0 } ],
+    "topProducts": [ { "productId": "uuid", "name": "…", "unitsSold": 0, "revenueInCents": 0 } ],
+    "payments": { "byStatus": [ { "status": "APPROVED", "count": 0 } ],
+                  "byCardBrand": [ { "brand": "VISA", "attempts": 0, "approved": 0 } ] },
+    "generatedAt": "ISO" } }
+```
+- A transaction counts on the day of its `createdAt`. Revenue (`totalInCents`), orders, units and `topProducts` use `APPROVED` only.
+- `averageOrderInCents` = round(revenue / approvedOrders). `totalAttempts` = every transaction in range. `approvalRate` = approved / (approved + declined + error + voided), 0–1, 4 decimals (`PENDING` excluded). All 0 when empty.
+- `salesByDay`: one zero-filled entry per day, oldest first. `topProducts`: ≤ 5 by revenue (ties: units, then name), name as stored on the transaction.
+- `byStatus`: always `APPROVED, DECLINED, ERROR, VOIDED, PENDING`. `byCardBrand`: always `VISA, MASTERCARD`.
 
 `GET /payment-config` → `200`
 ```json
@@ -88,7 +110,8 @@ Response `201` (and `GET /transactions/:id` → `200`)
 - `cardToken`, `acceptanceToken`: non-empty strings ≤ 2048 chars. `cardBrand`: `VISA | MASTERCARD`. `cardLastFour`: 4 digits.
 - `fullName`: 3–100 chars. `email`: RFC email ≤ 254. `phone`: E.164-ish `^\+?[0-9]{7,15}$`.
 - `addressLine1`: 5–120. `city`, `region`: 2–60. `country`: `CO`. `postalCode`: optional, 4–10 alphanumerics.
-- Unknown properties → 400 (`forbidNonWhitelisted`). Strings are trimmed.
+- Unknown properties and unknown query parameters → 400 (`forbidNonWhitelisted`). Strings are trimmed.
+- Query numbers must be plain integers in range (`page=abc`, `pageSize=49`, `days=0`, `sort=x` → 400).
 - Any field resembling card data (`number`, `cvc`, `expMonth`…) is rejected by the whitelist — by design.
 
 ## Error envelope
@@ -114,7 +137,7 @@ A declined card is **not** an HTTP error: `201` with `status: "DECLINED"`.
 
 ## HTTP hygiene
 
-- `Cache-Control: no-store` on everything under `/transactions`, `/customers`, `/deliveries`, `/payment-config`, `/webhooks`; `/products` uses `max-age=0, must-revalidate`.
+- `Cache-Control: no-store` on everything under `/transactions`, `/customers`, `/deliveries`, `/payment-config`, `/webhooks`, `/reports`; `/products` uses `max-age=0, must-revalidate`.
 - `helmet`, body limit 10 kb, rate limit (`@nestjs/throttler`): 60 req/min global, 10/min on `POST /transactions`.
 - CORS: disabled in production (same origin); allow `http://localhost:5173` in development only.
 - `X-Request-Id` echoed/generated on every response.

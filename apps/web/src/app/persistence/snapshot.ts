@@ -35,6 +35,8 @@ const snapshotSchema = z.object({
     step: z.enum(CHECKOUT_STEPS),
     productId: text(100).nullable(),
     quantity: z.number().int().min(1).max(10),
+    // Absent in snapshots saved before instalments existed.
+    installments: z.number().int().min(1).max(36).default(1),
     delivery: deliverySchema.nullable(),
     card: cardTokenSchema.nullable(),
     acceptedTerms: z.boolean(),
@@ -66,6 +68,7 @@ export function toSnapshot(state: PersistedSlices, now: Date = new Date()): Snap
       step: checkout.step,
       productId: checkout.productId,
       quantity: checkout.quantity,
+      installments: checkout.installments,
       delivery: delivery && {
         fullName: delivery.fullName,
         email: delivery.email,

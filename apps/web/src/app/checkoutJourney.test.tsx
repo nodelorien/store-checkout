@@ -385,7 +385,11 @@ describe('refresh recovery', () => {
   });
 
   it('shows the overlay once the catalogue loads after a failed first attempt', async () => {
-    server.use(http.get(`${API_URL}/products`, () => HttpResponse.error(), { once: true }));
+    // The page reads the catalogue twice (the visible page and the whole list the checkout
+    // joins against); both first attempts fail.
+    const failOnce = () =>
+      http.get(`${API_URL}/products`, () => HttpResponse.error(), { once: true });
+    server.use(failOnce(), failOnce());
     save(toSnapshot(paymentInfoState({ delivery })));
 
     const { user, store } = startApp();

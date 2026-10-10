@@ -15,6 +15,29 @@ export interface Product {
   stock: number;
 }
 
+export const CATALOGUE_SORTS = ['featured', 'name', 'price-asc', 'price-desc'] as const;
+export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
+
+/** Query of `GET /products`. Without `pageSize` the API returns every match in one page. */
+export interface CatalogueQuery {
+  page: number;
+  pageSize: number;
+  search: string;
+  sort: CatalogueSort;
+}
+
+export interface PageMeta {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ProductsPage {
+  items: Product[];
+  meta: PageMeta;
+}
+
 export interface PaymentConfig {
   publicKey: string;
   tokenizationUrl: string;
@@ -69,6 +92,60 @@ export interface Transaction {
   deliveryId: string | null;
   createdAt: string;
   resolvedAt: string | null;
+}
+
+export const DELIVERY_STATUSES = ['PENDING', 'SHIPPED', 'DELIVERED'] as const;
+export type DeliveryStatus = (typeof DELIVERY_STATUSES)[number];
+
+export interface DeliveryAddress {
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  region: string;
+  country: string;
+  postalCode: string | null;
+}
+
+export interface Delivery {
+  id: string;
+  transactionId: string;
+  customerId: string;
+  productId: string;
+  quantity: number;
+  address: DeliveryAddress;
+  status: DeliveryStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** `PATCH /deliveries/:id`: any subset of the address; fields not sent are kept. */
+export type DeliveryAddressPatch = Partial<
+  Pick<DeliveryAddress, 'addressLine1' | 'city' | 'region'> & {
+    addressLine2: string;
+    postalCode: string;
+  }
+>;
+
+/** `GET /reports/summary`: aggregates only, no personal data. */
+export interface SalesSummary {
+  currency: string;
+  range: { from: string; to: string; days: number };
+  totals: {
+    revenueInCents: number;
+    approvedOrders: number;
+    unitsSold: number;
+    averageOrderInCents: number;
+    totalAttempts: number;
+    /** Approved ÷ resolved attempts, 0–1. */
+    approvalRate: number;
+  };
+  salesByDay: { date: string; revenueInCents: number; orders: number }[];
+  topProducts: { productId: string; name: string; unitsSold: number; revenueInCents: number }[];
+  payments: {
+    byStatus: { status: TransactionStatus; count: number }[];
+    byCardBrand: { brand: CardBrand; attempts: number; approved: number }[];
+  };
+  generatedAt: string;
 }
 
 export function isFinalStatus(status: TransactionStatus): boolean {
