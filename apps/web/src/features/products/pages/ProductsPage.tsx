@@ -4,7 +4,12 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
-import { noticeDismissed, productSelected, selectPageNotice } from '@/features/checkout';
+import {
+  CheckoutFlow,
+  noticeDismissed,
+  productSelected,
+  selectPageNotice,
+} from '@/features/checkout';
 import { useGetProductsQuery } from '@/shared/api/baseApi';
 import { ProductGrid, ProductGridSkeleton } from '../components/ProductGrid';
 
@@ -76,6 +81,9 @@ export function ProductsPage() {
       {!loading && data && data.length > 0 && (
         <ProductGrid products={data} onPay={(productId) => dispatch(productSelected(productId))} />
       )}
+
+      {/* Checkout steps 2 and 3 are overlays on this page. */}
+      <CheckoutFlow />
     </Stack>
   );
 }
