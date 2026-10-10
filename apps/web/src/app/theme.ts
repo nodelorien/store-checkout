@@ -1,4 +1,5 @@
 import { alpha, createTheme } from '@mui/material/styles';
+import { motion } from '@/shared/motion/tokens';
 
 /** Brand tokens. Hex values live only in this file; components use `theme.palette`. */
 const brand = {
@@ -35,10 +36,10 @@ const base = createTheme({
   transitions: {
     duration: {
       shortest: 120,
-      shorter: 160,
+      shorter: motion.duration.feedback,
       short: 200,
-      standard: 250,
-      complex: 250,
+      standard: motion.duration.standard,
+      complex: motion.duration.standard,
       enteringScreen: 225,
       leavingScreen: 195,
     },
