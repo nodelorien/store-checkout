@@ -12,7 +12,7 @@ import { useId, type MouseEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { useGetPaymentConfigQuery } from '@/shared/api/baseApi';
 import type { Product } from '@/shared/api/types';
-import { Money } from '@/shared/components/Money';
+import { Money } from '@/shared/ui/atoms/Money';
 import { paymentInfoEditRequested } from '../checkoutSlice';
 import { confirmPayment } from '../confirmPayment';
 import {
@@ -114,22 +114,26 @@ export function SummaryBackdrop({ product }: SummaryBackdropProps) {
               <Stack component="dl" spacing={1} sx={{ m: 0 }}>
                 <SummaryRow
                   label={`${product.name} × ${quantity}`}
+                  index={0}
                   amountInCents={amounts?.subtotalInCents ?? product.priceInCents * quantity}
                   currency={product.currency}
                 />
                 <SummaryRow
                   label="Base fee"
+                  index={1}
                   amountInCents={amounts?.baseFeeInCents ?? null}
                   currency={product.currency}
                 />
                 <SummaryRow
                   label="Delivery fee"
+                  index={2}
                   amountInCents={amounts?.deliveryFeeInCents ?? null}
                   currency={product.currency}
                 />
                 <Divider component="div" role="presentation" sx={{ my: 0.5 }} />
                 <SummaryRow
                   label="Total"
+                  index={3}
                   amountInCents={amounts?.totalInCents ?? null}
                   currency={product.currency}
                   emphasis

@@ -5,6 +5,7 @@ import Stack from '@mui/material/Stack';
 import type { SxProps, Theme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import { useCallback, useState } from 'react';
+import { ParallaxLayer, clipWithoutScrolling } from '@/shared/motion';
 
 interface ResponsiveImageProps {
   src: string;
@@ -14,6 +15,11 @@ interface ResponsiveImageProps {
   height?: number;
   /** `high`: above the fold and likely the largest paint. `eager`: above the fold. */
   priority?: 'high' | 'eager' | 'lazy';
+  /**
+   * Pixels the image drifts inside its frame while it crosses the viewport. The image overfills
+   * the frame by the same margin, so the frame never shows an empty band.
+   */
+  parallax?: number;
   sx?: SxProps<Theme>;
 }
 
@@ -29,6 +35,7 @@ export function ResponsiveImage({
   width = 800,
   height = 600,
   priority = 'lazy',
+  parallax = 0,
   sx,
 }: ResponsiveImageProps) {
   const [status, setStatus] = useState<Status>(src ? 'loading' : 'error');
@@ -38,6 +45,33 @@ export function ResponsiveImage({
     if (image?.complete && image.naturalWidth > 0) setStatus('loaded');
   }, []);
 
+  const image = (
+    <Box
+      component="img"
+      ref={handleRef}
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      loading={priority === 'lazy' ? 'lazy' : 'eager'}
+      decoding="async"
+      fetchPriority={priority === 'high' ? 'high' : 'auto'}
+      onLoad={() => setStatus('loaded')}
+      onError={() => setStatus('error')}
+      sx={{
+        position: 'absolute',
+        inset: 0,
+        display: 'block',
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        opacity: status === 'loaded' ? 1 : 0,
+        transition: (theme) =>
+          theme.transitions.create('opacity', { duration: theme.transitions.duration.short }),
+      }}
+    />
+  );
+
   return (
     <Box
       sx={[
@@ -45,7 +79,7 @@ export function ResponsiveImage({
           position: 'relative',
           width: '100%',
           aspectRatio: `${width} / ${height}`,
-          overflow: 'hidden',
+          ...clipWithoutScrolling,
           bgcolor: 'action.hover',
         },
         ...(Array.isArray(sx) ? sx : [sx]),
@@ -76,31 +110,16 @@ export function ResponsiveImage({
           <ImageNotSupportedOutlinedIcon aria-hidden />
           <Typography variant="body2">Image unavailable</Typography>
         </Stack>
+      ) : parallax > 0 ? (
+        <ParallaxLayer
+          travel={parallax}
+          data-testid="image-parallax"
+          sx={{ position: 'absolute', inset: `${-parallax}px 0` }}
+        >
+          {image}
+        </ParallaxLayer>
       ) : (
-        <Box
-          component="img"
-          ref={handleRef}
-          src={src}
-          alt={alt}
-          width={width}
-          height={height}
-          loading={priority === 'lazy' ? 'lazy' : 'eager'}
-          decoding="async"
-          fetchPriority={priority === 'high' ? 'high' : 'auto'}
-          onLoad={() => setStatus('loaded')}
-          onError={() => setStatus('error')}
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            display: 'block',
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            opacity: status === 'loaded' ? 1 : 0,
-            transition: (theme) =>
-              theme.transitions.create('opacity', { duration: theme.transitions.duration.short }),
-          }}
-        />
+        image
       )}
     </Box>
   );

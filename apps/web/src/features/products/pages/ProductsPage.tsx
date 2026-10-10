@@ -11,16 +11,9 @@ import {
   selectPageNotice,
 } from '@/features/checkout';
 import { useGetProductsQuery } from '@/shared/api/baseApi';
+import { visuallyHidden } from '@/shared/ui/atoms/visuallyHidden';
 import { ProductGrid, ProductGridSkeleton } from '../components/ProductGrid';
-
-const visuallyHidden = {
-  position: 'absolute',
-  width: 1,
-  height: 1,
-  overflow: 'hidden',
-  clip: 'rect(0 0 0 0)',
-  whiteSpace: 'nowrap',
-} as const;
+import { StoreHero } from '../components/StoreHero';
 
 export function ProductsPage() {
   const dispatch = useAppDispatch();
@@ -34,14 +27,7 @@ export function ProductsPage() {
 
   return (
     <Stack spacing={{ xs: 2.5, md: 4 }}>
-      <Stack spacing={0.5}>
-        <Typography variant="h1" component="h2">
-          Featured products
-        </Typography>
-        <Typography color="text.secondary">
-          Hand-picked essentials, delivered to your door.
-        </Typography>
-      </Stack>
+      <StoreHero />
 
       {notice && (
         <Alert severity="info" onClose={() => dispatch(noticeDismissed())}>

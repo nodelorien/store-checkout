@@ -1,7 +1,8 @@
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
-import { Money } from '@/shared/components/Money';
+import { revealSx, useReveal } from '@/shared/motion';
+import { Money } from '@/shared/ui/atoms/Money';
 
 interface SummaryRowProps {
   label: string;
@@ -9,14 +10,33 @@ interface SummaryRowProps {
   amountInCents: number | null;
   currency?: string;
   emphasis?: boolean;
+  /** Position in the summary; rows enter one after another. */
+  index?: number;
 }
 
 /** One "label … amount" line of the order summary (a `dt`/`dd` pair). */
-export function SummaryRow({ label, amountInCents, currency, emphasis = false }: SummaryRowProps) {
+export function SummaryRow({
+  label,
+  amountInCents,
+  currency,
+  emphasis = false,
+  index = 0,
+}: SummaryRowProps) {
   const variant = emphasis ? 'h3' : 'body1';
+  const { ref, state } = useReveal<HTMLDivElement>();
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 2 }}>
+    <Box
+      ref={ref}
+      data-reveal={state}
+      sx={{
+        display: 'flex',
+        alignItems: 'baseline',
+        justifyContent: 'space-between',
+        gap: 2,
+        ...revealSx(state, index),
+      }}
+    >
       <Typography
         component="dt"
         variant={variant}

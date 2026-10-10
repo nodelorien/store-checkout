@@ -58,6 +58,18 @@ export function statusContentFor(
   return content;
 }
 
+export type StatusMotion = 'draw' | 'nudge' | 'none';
+
+/**
+ * Motion of the result icon: drawn in on success, one short nudge on failure. A payment still in
+ * progress keeps its spinner, and nothing moves when the customer asked for reduced motion.
+ */
+export function statusMotionFor(tone: StatusContent['tone'], reducedMotion: boolean): StatusMotion {
+  if (reducedMotion) return 'none';
+  if (tone === 'success') return 'draw';
+  return tone === 'error' ? 'nudge' : 'none';
+}
+
 export function canRetryPayment(status: TransactionStatus): boolean {
   return status === 'DECLINED' || status === 'ERROR' || status === 'VOIDED';
 }
