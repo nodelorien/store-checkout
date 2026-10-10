@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import serverlessExpress from '@codegenie/serverless-express';
 import { NestFactory } from '@nestjs/core';
-import type { NestExpressApplication } from '@nestjs/platform-express';
+import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
 import type { Callback, Context, Handler } from 'aws-lambda';
 import { AppModule } from './app.module';
 import { configureApp } from './bootstrap';
@@ -9,8 +9,14 @@ import { configureApp } from './bootstrap';
 /** Built once per execution environment and reused by warm invocations. */
 let cachedServer: Promise<Handler> | undefined;
 
+/**
+ * The adapter is passed explicitly: Nest's default lookup is a dynamic `require` that bundlers
+ * cannot see and that fails when the package is not hoisted next to `@nestjs/core`.
+ */
 async function createServer(): Promise<Handler> {
-  const app = configureApp(await NestFactory.create<NestExpressApplication>(AppModule));
+  const app = configureApp(
+    await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter()),
+  );
   await app.init();
   return serverlessExpress({ app: app.getHttpAdapter().getInstance() });
 }
