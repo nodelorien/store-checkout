@@ -6,7 +6,7 @@ read-when: any work inside apps/api
 
 # Backend context (`apps/api`)
 
-NestJS API. Hexagonal (ADR-0002), ROP use cases (ADR-0003), DynamoDB (ADR-0004), runs on Lambda (ADR-0008).
+NestJS 11 API (pinned: v12 is ESM-only and breaks the CommonJS Jest + Lambda bundle setup). Hexagonal (ADR-0002), ROP use cases (ADR-0003), DynamoDB (ADR-0004), runs on Lambda (ADR-0008).
 
 ## Deep dives (L3) — load only what you touch
 
