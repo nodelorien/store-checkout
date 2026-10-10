@@ -52,6 +52,7 @@ Ordered by dependency and by rubric value (PRD §7). Each row becomes a spec fol
 | 015 | `aws-deployment` — CDK stack, security headers, secrets, deploy workflow, seed | infra | NFR-04, NFR-05, NFR-08 | Done |
 | 016 | `readme-and-hardening` — README deliverables, coverage report, Observatory, cross-browser pass | all | NFR-09, FR-13 | Done |
 | 017 | `motion-and-parallax` — motion tokens, reveal on scroll, hero and image parallax, status and stock feedback | frontend | NFR-01, NFR-06, NFR-07 | Done |
+| 018 | `motion-emphasis` — larger travel, hero opening sequence and pointer depth, card hover, wide-screen hero | frontend | NFR-01, NFR-07 | Done |
 
 Critical path if time runs short: 001 → 002 → 003 → 005 → 006 → 009 → 010 → 011 → 012 → 013 → 015 → 016.
 004 and 007 are small and can be folded into 006's PR; 008 is optional; 014 can be partially delivered inside 009/013.
