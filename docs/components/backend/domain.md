@@ -12,7 +12,7 @@ read-when: changing entities, statuses, business rules or domain error codes
 |---|---|---|
 | **Product** | `id`, `name`, `description`, `priceInCents`, `currency`, `imageUrl`, `stock`, `createdAt`, `updatedAt` | Seeded. `stock` is an integer ≥ 0. |
 | **Customer** | `id`, `fullName`, `email`, `phone`, `createdAt`, `updatedAt` | Unique by normalised (lower-cased, trimmed) email → upsert. |
-| **Transaction** | `id`, `reference`, `status`, `productId`, `quantity`, `customerId`, `amounts`, `currency`, `shippingAddress`, `cardBrand`, `cardLastFour`, `gatewayTransactionId?`, `statusMessage?`, `deliveryId?`, `createdAt`, `updatedAt`, `resolvedAt?` | `reference` is the human "transaction number". |
+| **Transaction** | `id`, `reference`, `status`, `productId`, `productName`, `productImageUrl`, `quantity`, `installments`, `customerId`, `amounts`, `currency`, `shippingAddress`, `cardBrand`, `cardLastFour`, `gatewayTransactionId?`, `statusMessage?`, `deliveryId?`, `createdAt`, `updatedAt`, `resolvedAt?` | `reference` is the human "transaction number". |
 | **Delivery** | `id`, `transactionId`, `customerId`, `productId`, `quantity`, `address`, `status`, `createdAt`, `updatedAt` | Created only when a transaction is approved. |
 
 ## Value objects
@@ -63,6 +63,7 @@ the address can be amended while `PENDING` (see `api.md`).
 | `CreateTransaction` | transactions | validate → stock check → amounts → customer → PENDING → charge → bounded poll → resolve |
 | `GetTransaction` | transactions | read; if `PENDING` and has a gateway id, reconcile first |
 | `ResolveTransaction` | transactions | apply a gateway status atomically (used by create, get, webhook) |
+| `HandleGatewayEvent` | transactions | verify the event checksum, match our transaction, then `ResolveTransaction` |
 | `GetDelivery`, `GetDeliveryByTransaction`, `UpdateDeliveryAddress` | deliveries | read / amend while `PENDING` |
 
 ## Domain errors
@@ -72,7 +73,8 @@ Discriminated union on `code`. HTTP mapping in `api.md`.
 `VALIDATION_ERROR` · `PRODUCT_NOT_FOUND` · `CUSTOMER_NOT_FOUND` · `TRANSACTION_NOT_FOUND` ·
 `DELIVERY_NOT_FOUND` · `OUT_OF_STOCK` · `DELIVERY_NOT_EDITABLE` · `PAYMENT_GATEWAY_REJECTED`
 (gateway returned 4xx for the charge request: bad token, bad signature…) ·
-`PAYMENT_GATEWAY_UNAVAILABLE` (timeout / 5xx / network) · `PERSISTENCE_ERROR`.
+`PAYMENT_GATEWAY_UNAVAILABLE` (timeout / 5xx / network) · `INVALID_SIGNATURE` (webhook
+checksum) · `PERSISTENCE_ERROR`.
 
 A **declined payment is not an error**: the use case succeeds and returns a transaction whose
 status is `DECLINED`.
