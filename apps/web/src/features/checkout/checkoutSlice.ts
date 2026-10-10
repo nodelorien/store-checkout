@@ -57,6 +57,12 @@ export const initialCheckoutState: CheckoutState = {
   notice: null,
 };
 
+/** Type prefix of the `confirmPayment` thunk, declared here so the slice need not import it. */
+export const CONFIRM_PAYMENT_TYPE = 'checkout/confirmPayment';
+
+const isPaymentPending = (action: { type: string }) =>
+  action.type === `${CONFIRM_PAYMENT_TYPE}/pending`;
+
 const idleSubmission = (): CheckoutState['submission'] => ({ status: 'idle', error: null });
 
 function clampQuantity(quantity: number): number {
@@ -134,9 +140,6 @@ const checkoutSlice = createSlice({
       state.submission = idleSubmission();
       state.notice = NOTICES.reenterCard;
     },
-    paymentStarted(state) {
-      state.submission = { status: 'paying', error: null };
-    },
     paymentFailed(state, action: PayloadAction<UiError>) {
       state.submission = { status: 'failed', error: action.payload };
     },
@@ -153,11 +156,17 @@ const checkoutSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(baseApi.endpoints.createTransaction.matchFulfilled, (state) => {
-      state.step = 'STATUS';
-      state.submission = idleSubmission();
-      state.notice = null;
-    });
+    builder
+      // Reduced synchronously with the dispatch of `confirmPayment`, so a second press in the
+      // same tick already sees `paying` and is rejected by the thunk's condition.
+      .addMatcher(isPaymentPending, (state) => {
+        state.submission = { status: 'paying', error: null };
+      })
+      .addMatcher(baseApi.endpoints.createTransaction.matchFulfilled, (state) => {
+        state.step = 'STATUS';
+        state.submission = idleSubmission();
+        state.notice = null;
+      });
   },
 });
 
@@ -173,7 +182,6 @@ export const {
   paymentInfoSubmitted,
   paymentInfoEditRequested,
   cardTokenExpired,
-  paymentStarted,
   paymentFailed,
   paymentRetried,
   noticeDismissed,

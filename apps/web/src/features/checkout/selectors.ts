@@ -67,13 +67,13 @@ export const selectIsCardTokenValid = (state: RootState, now: number): boolean =
   return Number.isFinite(expiresAt) && expiresAt > now;
 };
 
-export const selectCanPay = (state: RootState, now: number): boolean => {
-  const { step, delivery, acceptedTerms, idempotencyKey, quantity, submission } = state.checkout;
+/** Everything needed to charge is present and consistent (regardless of a payment in flight). */
+export const selectIsOrderPayable = (state: RootState, now: number): boolean => {
+  const { step, delivery, acceptedTerms, idempotencyKey, quantity } = state.checkout;
   const maxQuantity = selectMaxQuantity(state);
 
   return (
     step === 'SUMMARY' &&
-    submission.status !== 'paying' &&
     delivery !== null &&
     acceptedTerms &&
     idempotencyKey !== null &&
@@ -83,3 +83,6 @@ export const selectCanPay = (state: RootState, now: number): boolean => {
     selectIsCardTokenValid(state, now)
   );
 };
+
+export const selectCanPay = (state: RootState, now: number): boolean =>
+  !selectIsPaying(state) && selectIsOrderPayable(state, now);

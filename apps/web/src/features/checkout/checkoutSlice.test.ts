@@ -14,7 +14,6 @@ import {
   paymentInfoEditRequested,
   paymentInfoSubmitted,
   paymentRetried,
-  paymentStarted,
   productSelected,
   quantityChanged,
   termsAcceptanceChanged,
@@ -30,6 +29,8 @@ const summary = checkoutState({
   acceptedTerms: true,
   idempotencyKey: IDEMPOTENCY_KEY,
 });
+
+const paymentPending = { type: 'checkout/confirmPayment/pending' };
 
 describe('checkoutSlice', () => {
   it('starts on the product page with nothing selected', () => {
@@ -143,7 +144,7 @@ describe('checkoutSlice', () => {
   });
 
   it('tracks payment progress and failure', () => {
-    const paying = checkoutReducer(summary, paymentStarted());
+    const paying = checkoutReducer(summary, paymentPending);
     expect(paying.submission).toEqual({ status: 'paying', error: null });
 
     const error = createUiError('PAYMENT_GATEWAY_UNAVAILABLE', 502);
@@ -153,7 +154,7 @@ describe('checkoutSlice', () => {
   });
 
   it('moves to the status step when the transaction is created', () => {
-    const paying = checkoutReducer(summary, paymentStarted());
+    const paying = checkoutReducer(summary, paymentPending);
     const created = {
       type: `${baseApi.reducerPath}/executeMutation/fulfilled`,
       payload: buildTransaction(),
