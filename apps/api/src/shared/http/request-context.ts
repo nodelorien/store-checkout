@@ -24,7 +24,14 @@ export function requestIdMiddleware(
   next();
 }
 
-const NO_STORE_PREFIXES = ['transactions', 'customers', 'deliveries', 'payment-config', 'webhooks'];
+const NO_STORE_PREFIXES = [
+  'transactions',
+  'customers',
+  'deliveries',
+  'payment-config',
+  'webhooks',
+  'reports',
+];
 
 /** `Cache-Control` policy from `api.md`; applied before routing so error responses get it too. */
 export function cacheControlMiddleware(apiPrefix: string) {

@@ -14,11 +14,12 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/bootstrap';
 import { toProductItem } from '../src/modules/products/infrastructure/persistence/dynamodb-product.repository';
+import { toTransactionItem } from '../src/modules/transactions/infrastructure/persistence/transaction.mapper';
 import { HTTP_FETCH } from '../src/modules/transactions/infrastructure/gateway/http-payment-gateway.adapter';
 import { APP_CONFIG } from '../src/shared/config/app-config';
 import { CLOCK } from '../src/shared/ports/clock.port';
 import { aProduct, PRODUCT_ID } from './builders/product.builder';
-import { AN_ADDRESS } from './builders/transaction.builder';
+import { AN_ADDRESS, aTransaction } from './builders/transaction.builder';
 import { FakeClock } from './fakes/fake-system';
 import { testConfig } from './helpers/test-config';
 
@@ -67,6 +68,27 @@ describe('AppModule wiring', () => {
     const products = await request(server).get('/api/v1/products').expect(200);
 
     expect(products.body.data).toHaveLength(1);
+  });
+
+  it('serves the sales summary from a scan of the transactions table', async () => {
+    dynamo.on(ScanCommand, { TableName: 'test-transactions' }).resolves({
+      Items: [toTransactionItem(aTransaction().approved().build())],
+    });
+
+    const response = await request(app.getHttpServer())
+      .get('/api/v1/reports/summary?days=7')
+      .expect(200);
+
+    expect(response.headers['cache-control']).toBe('no-store');
+    expect(response.body.data.range).toMatchObject({ to: '2026-10-09', days: 7 });
+    expect(response.body.data.totals).toMatchObject({
+      approvedOrders: 1,
+      revenueInCents: 27_030_000,
+      unitsSold: 2,
+    });
+    expect(dynamo.commandCalls(ScanCommand)[0].args[0].input.ExpressionAttributeValues).toEqual({
+      ':from': '2026-10-03T05:00:00.000Z',
+    });
   });
 
   it('serves payment-config through the gateway adapter', async () => {
