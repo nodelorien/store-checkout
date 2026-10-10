@@ -32,10 +32,10 @@ export function OrderLine({ product, disabled = false }: OrderLineProps) {
         bgcolor: 'background.default',
       }}
     >
-      <Box sx={{ width: 72, flexShrink: 0, borderRadius: 1.5, overflow: 'hidden' }}>
+      <Box sx={{ width: 56, flexShrink: 0, borderRadius: 1.5, overflow: 'hidden' }}>
         <ResponsiveImage src={product.imageUrl} alt="" priority="eager" />
       </Box>
-      <Stack sx={{ flex: '1 1 120px', minWidth: 0 }}>
+      <Stack sx={{ flex: '1 1 96px', minWidth: 0 }}>
         <Typography
           sx={{
             fontWeight: 600,

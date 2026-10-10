@@ -58,7 +58,11 @@ export function AppShell({ children }: PropsWithChildren) {
               sx={{ ml: 'auto', alignItems: 'center', flexShrink: 0, opacity: 0.9 }}
             >
               <LockOutlinedIcon fontSize="small" aria-hidden />
-              <Typography variant="body2" component="span">
+              <Typography
+                variant="body2"
+                component="span"
+                sx={{ '@media (max-width: 359.95px)': { display: 'none' } }}
+              >
                 Secure checkout
               </Typography>
             </Stack>
