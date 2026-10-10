@@ -50,7 +50,7 @@ Ordered by dependency and by rubric value (PRD §7). Each row becomes a spec fol
 | 013 | `transaction-status` — status page, polling, back to store, stock refresh | frontend | FR-10 | Done |
 | 014 | `refresh-recovery` — resume at every step, token expiry, guards | frontend | FR-11 | Done |
 | 015 | `aws-deployment` — CDK stack, security headers, secrets, deploy workflow, seed | infra | NFR-04, NFR-05, NFR-08 | Code done, deploy pending |
-| 016 | `readme-and-hardening` — README deliverables, coverage report, Observatory, cross-browser pass | all | NFR-09, FR-13 | Not started |
+| 016 | `readme-and-hardening` — README deliverables, coverage report, Observatory, cross-browser pass | all | NFR-09, FR-13 | README done; URLs pending deploy |
 
 Critical path if time runs short: 001 → 002 → 003 → 005 → 006 → 009 → 010 → 011 → 012 → 013 → 015 → 016.
 004 and 007 are small and can be folded into 006's PR; 008 is optional; 014 can be partially delivered inside 009/013.
