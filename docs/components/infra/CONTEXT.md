@@ -13,10 +13,13 @@ AWS CDK app in TypeScript (ADR-0008). One stack, three constructs. Everything fr
 | Construct | Resources |
 |---|---|
 | `Database` | 4 DynamoDB tables (on-demand) with the keys/GSIs from `backend/data-model.md`; `RemovalPolicy.DESTROY` (assessment stack) |
-| `Api` | Lambda (`NodejsFunction`, esbuild bundle of `apps/api/src/lambda.ts`, arm64, 512 MB, timeout 29 s) · API Gateway HTTP API (`$default` → Lambda, throttling) · IAM least privilege (only the 4 tables + their indexes, read of its SSM parameters) · log retention 1 week |
-| `Web` | private S3 bucket (block public access, SSE) · CloudFront distribution with OAC · behaviours: default → S3, `/api/*` → HTTP API (caching disabled, all methods, forward headers except `Host`) · SPA fallback (403/404 → `/index.html` 200, default behaviour only) · response-headers policy · `BucketDeployment` of `apps/web/dist` |
+| `Api` | Lambda (`Code.fromAsset(infra/build/api)`, arm64, 512 MB, timeout 29 s). The bundle is produced by `npm run bundle:api -w infra`: the API is compiled with `tsc` first (esbuild emits no decorator metadata), then `apps/api/dist/lambda.js` is bundled with esbuild and `swagger-ui-dist` is copied next to it · API Gateway HTTP API (`$default` → Lambda, throttling) · IAM least privilege (only the 4 tables + their indexes, read of its SSM parameters) · log retention 1 week |
+| `Web` | private S3 bucket (block public access, SSE) · CloudFront distribution with OAC · behaviours: default → S3, `/api/*` → HTTP API (caching disabled, all methods, forward headers except `Host`) · SPA fallback through a CloudFront Function on the default behaviour only (paths without a file extension → `/index.html`), so API errors are never rewritten · response-headers policy · `BucketDeployment` of `apps/web/dist` |
 
-Outputs: `CloudFrontUrl`, `ApiDocsUrl` (`…/api/docs`), `ApiGatewayUrl`.
+Outputs: `SiteUrl`, `ApiDocsUrl` (`…/api/docs`), `ApiBaseUrl`, `ProductsTableName`.
+
+Deploy-time variables (shell or GitHub repository variables): `PAYMENT_GATEWAY_BASE_URL`,
+`PAYMENT_GATEWAY_PUBLIC_KEY`, optional `STAGE` (default `prod`), `BASE_FEE_IN_CENTS`, `DELIVERY_FEE_IN_CENTS`.
 
 ## Security headers (CloudFront response-headers policy)
 
@@ -34,7 +37,7 @@ Goal: grade A or better on Mozilla Observatory; record the result in the README.
 | Name | Where | Kind |
 |---|---|---|
 | `PAYMENT_GATEWAY_BASE_URL`, `PAYMENT_GATEWAY_PUBLIC_KEY` | Lambda env (from CDK context / CI vars) | plain |
-| `PAYMENT_GATEWAY_PRIVATE_KEY`, `PAYMENT_GATEWAY_INTEGRITY_SECRET`, `PAYMENT_GATEWAY_EVENTS_SECRET` | SSM Parameter Store `SecureString` under `/checkout/<stage>/…`, read at cold start | secret |
+| `PAYMENT_GATEWAY_PRIVATE_KEY`, `PAYMENT_GATEWAY_INTEGRITY_SECRET`, `PAYMENT_GATEWAY_EVENTS_SECRET` | SSM Parameter Store `SecureString` at `/checkout/<stage>/payment-gateway/{private-key,integrity-secret,events-secret}`; the Lambda receives only the names (`*_PARAM` env vars) and reads the values at cold start | secret |
 | `TABLE_*`, `BASE_FEE_IN_CENTS`, `DELIVERY_FEE_IN_CENTS`, `NODE_ENV`, `LOG_LEVEL` | Lambda env | plain |
 | `VITE_API_BASE_URL` | web build | `/api/v1` in prod, `http://localhost:3000/api/v1` in dev |
 
@@ -48,7 +51,7 @@ Secrets are created once with the AWS CLI, **never** through CDK source or CI lo
 | `ci.yml` | pull request, push | install → lint → typecheck → `test:cov` (api, web, infra; fails < 80%) → build |
 | `deploy.yml` | push to `main` (after CI) | build web + api → `cdk deploy --require-approval never` → seed products → smoke test `/api/v1/health` |
 
-AWS auth through GitHub OIDC role (no long-lived keys). Third-party actions pinned by SHA.
+AWS auth through a GitHub OIDC role (`vars.AWS_DEPLOY_ROLE_ARN`, no long-lived keys); the deploy job is skipped until that variable exists.
 
 ## Rules
 
@@ -62,7 +65,7 @@ AWS auth through GitHub OIDC role (no long-lived keys). Third-party actions pinn
 
 ## Commands (once scaffolded)
 
-`npm run synth -w infra` · `npm run diff -w infra` · `npm run deploy -w infra` · `npm run test -w infra`
+`npm run build` → `npm run bundle:api -w infra` → `npm run synth|diff|deploy -w infra` · `npm run test:cov -w infra`
 
 ## README deliverables owned by infra
 
