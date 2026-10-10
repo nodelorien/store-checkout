@@ -45,9 +45,9 @@ The summary **must** be a backdrop component (brief requirement, Material "Backd
 
 ## Images (rubric: "render fast, no out-of-bounds")
 
-- Ship optimised **WebP** (≤ 60 kB, 800 px wide) in `apps/web/public/images/products/`; served by CloudFront with long cache.
-- Always set `width`/`height` or `aspect-ratio: 4 / 3` + `object-fit: cover` → zero layout shift.
-- `loading="lazy"` + `decoding="async"` for below-the-fold; first card image `fetchpriority="high"`.
+- Ship hand-written **SVG** illustrations (a few kB each, `viewBox="0 0 800 600"`, 4:3) in `apps/web/public/images/products/<slug>.svg`; served by CloudFront with long cache.
+- `ResponsiveImage` always sets `width`/`height` and wraps the image in an `aspect-ratio: 4 / 3` box with `object-fit: cover` → zero layout shift, nothing out of bounds.
+- `loading="lazy"` + `decoding="async"` for below-the-fold; the first two cards load eagerly, the first with `fetchpriority="high"`.
 - Skeleton placeholder while loading; fallback placeholder on error.
 - Card brand logos are inline SVG components (no network request).
 
