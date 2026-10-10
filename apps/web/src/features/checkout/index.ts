@@ -13,3 +13,5 @@ export {
 export type { CheckoutState, CheckoutStep, DeliveryInfo, TokenizedCard } from './checkoutSlice';
 export { selectCheckoutStep, selectDelivery, selectPageNotice } from './selectors';
 export { CheckoutFlow } from './components/CheckoutFlow';
+export { createCheckoutListenerMiddleware } from './listeners';
+export { resumeCheckout } from './thunks';

@@ -6,6 +6,7 @@ import {
   selectCanPay,
   selectDialogNotice,
   selectIsCardTokenValid,
+  selectIsOrderPayable,
   selectIsPaying,
   selectIsTokenizing,
   selectMaxQuantity,
@@ -112,7 +113,6 @@ describe('checkout selectors', () => {
     ['terms not accepted', summaryState({ acceptedTerms: false })],
     ['no idempotency key', summaryState({ idempotencyKey: null })],
     ['an expired token', summaryState({ card: { ...tokenizedCard, expiresAt: '2020-01-01' } })],
-    ['a quantity above the stock', summaryState({ quantity: 10, productId: 'grinder' })],
   ])('selectCanPay is false with %s', async (_label, preloaded) => {
     const store = await storeWith(preloaded, {
       products: [...buildCatalogue(), buildProduct({ id: 'grinder', stock: 1 })],
@@ -150,5 +150,16 @@ describe('checkout selectors', () => {
     expect(selectIsTokenizing(tokenizing)).toBe(true);
     expect(selectIsPaying(tokenizing)).toBe(false);
     expect(selectIsPaying(paying)).toBe(true);
+  });
+
+  it('selectIsOrderPayable is false when the quantity exceeds the stock', async () => {
+    const store = await storeWith(summaryState(), { products: [buildProduct({ stock: 1 })] });
+    const state = store.getState();
+    // Built by hand: in a running store the checkout listener would correct the quantity first.
+    const overStock = { ...state, checkout: { ...state.checkout, quantity: 2 } };
+
+    expect(selectIsOrderPayable(state, NOW)).toBe(true);
+    expect(selectIsOrderPayable(overStock, NOW)).toBe(false);
+    expect(selectCanPay(overStock, NOW)).toBe(false);
   });
 });
