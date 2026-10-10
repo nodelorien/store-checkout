@@ -1,8 +1,12 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import { appReducer } from './appSlice';
+import { checkoutReducer } from '@/features/checkout';
+import { transactionReducer } from '@/features/transaction';
+import { baseApi } from '@/shared/api/baseApi';
 
 export const rootReducer = combineReducers({
-  app: appReducer,
+  [baseApi.reducerPath]: baseApi.reducer,
+  checkout: checkoutReducer,
+  transaction: transactionReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
