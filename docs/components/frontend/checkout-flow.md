@@ -34,10 +34,15 @@ PRODUCTS ──selectProduct──► PAYMENT_INFO ──submitPaymentInfo (toke
 
 | Thunk | Does |
 |---|---|
-| `submitPaymentInfo({ card, delivery })` | calls `tokenizeCard` (gateway, public key) → stores `{ tokenId, brand, lastFour, expiresAt }` + delivery → step `SUMMARY`. Card fields are dropped here. |
-| `confirmPayment()` | guards (token not expired, not already submitting) → `POST /transactions` with a generated `Idempotency-Key` → stores transaction → step `STATUS` → navigate `/transactions/:id` |
-| `pollTransaction(id)` | while status is `PENDING`: `GET /transactions/:id` every 2 s, max 30 attempts, then show "still processing" with a manual refresh button |
-| `finishCheckout()` | clears checkout + transaction slices and persisted snapshot, invalidates `Products` tag, navigates `/` |
+| `submitPaymentInfo(card, delivery)` | calls `tokenizeCard` (gateway, public key) → stores `{ tokenId, brand, lastFour, expiresAt }` + delivery + a new idempotency key (an existing key is kept) → step `SUMMARY`. Card fields are dropped here. |
+| `confirmPayment()` | guards (token not expired, order payable, not already paying) → **fresh** `GET /payment-config` (single-use acceptance token) → `POST /transactions` with the persisted `Idempotency-Key` → stores transaction → step `STATUS`; the store route then redirects to `/transactions/:id` |
+| `pollTransaction(id)` | while status is `PENDING`: `GET /transactions/:id` every 2 s, max 30 attempts, then show "still processing" with a "Check again" button; aborted when the page is left |
+| `finishCheckout()` | clears checkout + transaction slices (the persistence listener removes the snapshot), invalidates `Products`; the page navigates to `/` |
+| `retryPayment(productId)` | after a failed payment: step `PAYMENT_INFO` for the same product, delivery kept, card token and idempotency key dropped, `PaymentConfig` invalidated |
+| `resumeCheckout()` | at start-up: a restored `SUMMARY` without a valid card token goes back to `PAYMENT_INFO` with a notice |
+
+The dialog stays mounted (hidden) during `SUMMARY`, so "Edit details" finds the card still typed
+in the form's own state; after a refresh the card inputs are empty.
 
 ## Refresh recovery (FR-11)
 

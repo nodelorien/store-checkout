@@ -14,8 +14,11 @@ Threshold 80% global; aim ≥ 90%. **Not Vitest** (ADR-0009).
 - Transform TS/TSX with `@swc/jest` (or `ts-jest`), JSX runtime `automatic`.
 - `moduleNameMapper`: CSS → `identity-obj-proxy`; images/SVG files → a stub; `@/` → `src/`.
 - `import.meta.env` is not available in Jest: only `shared/config/env.ts` reads it; tests mock that module.
-- `setupFilesAfterEnv`: `jest-dom`, MSW server lifecycle (or `fetch` mock), `localStorage.clear()`.
-- Node's `fetch`/`Response` polyfills for RTK Query under jsdom if needed (`whatwg-fetch` or `undici`).
+- `setupFilesAfterEnv`: `jest-dom`, MSW server lifecycle (unhandled requests fail the test), `localStorage.clear()`.
+- Environment `jest-fixed-jsdom` gives jsdom Node's `fetch`/`Request`/`Response`; `src/test/polyfills.ts` adds `setImmediate`, which that fetch stack needs.
+- MSW 3 is ESM-only: `transformIgnorePatterns` lets SWC compile it and its ESM dependencies.
+- Helpers in `src/test/`: `builders` (contract fixtures), `handlers`/`server` (MSW), `states` (preloaded slices), `checkoutForm` (fill the dialog), `startApp` (boot like `main.tsx` and simulate a refresh), `delayMock` (polling without waiting), `actionRecorder` (assert what was dispatched).
+- Gateway host in tests is the neutral `https://gateway.test`; card numbers are the generic 4242… / 5555… ones.
 
 ## What to test
 
