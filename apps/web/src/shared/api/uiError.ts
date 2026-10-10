@@ -21,6 +21,10 @@ const MESSAGES: Record<string, string> = {
   NOT_FOUND: 'We could not find what you were looking for.',
   CARD_TOKEN_EXPIRED: 'Your card details expired. Please enter them again.',
   CARD_REJECTED: 'We could not validate your card. Check the details and try again.',
+  CARD_TOKENIZATION_FAILED: 'We could not process your card right now. Please try again.',
+  CARD_BRAND_UNSUPPORTED: 'Only VISA and MasterCard are accepted.',
+  PAYMENT_CONFIG_UNAVAILABLE:
+    'We could not load the payment settings. Check your connection and try again.',
   CHECKOUT_INCOMPLETE: 'Your order is incomplete. Please review your details.',
 };
 
