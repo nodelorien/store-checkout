@@ -1,4 +1,10 @@
-import type { Delivery, PaymentConfig, Product, Transaction } from '@/shared/api/types';
+import type {
+  Delivery,
+  PaymentConfig,
+  Product,
+  SalesSummary,
+  Transaction,
+} from '@/shared/api/types';
 
 export const API_URL = 'http://localhost/api/v1';
 export const GATEWAY_TOKENIZATION_URL = 'https://gateway.test/v1/tokens/cards';
@@ -130,6 +136,54 @@ export function buildDelivery(overrides: Partial<Delivery> = {}): Delivery {
     status: 'PENDING',
     createdAt: '2026-10-09T15:00:02.000Z',
     updatedAt: '2026-10-09T15:00:02.000Z',
+    ...overrides,
+  };
+}
+
+export function buildSalesSummary(overrides: Partial<SalesSummary> = {}): SalesSummary {
+  return {
+    currency: 'COP',
+    range: { from: '2026-10-04', to: '2026-10-10', days: 7 },
+    totals: {
+      revenueInCents: 60_120_000,
+      approvedOrders: 3,
+      unitsSold: 4,
+      averageOrderInCents: 20_040_000,
+      totalAttempts: 5,
+      approvalRate: 0.75,
+    },
+    salesByDay: [
+      { date: '2026-10-04', revenueInCents: 0, orders: 0 },
+      { date: '2026-10-05', revenueInCents: 0, orders: 0 },
+      { date: '2026-10-06', revenueInCents: 0, orders: 0 },
+      { date: '2026-10-07', revenueInCents: 0, orders: 0 },
+      { date: '2026-10-08', revenueInCents: 0, orders: 0 },
+      { date: '2026-10-09', revenueInCents: 20_040_000, orders: 1 },
+      { date: '2026-10-10', revenueInCents: 40_080_000, orders: 2 },
+    ],
+    topProducts: [
+      { productId: PRODUCT_ID, name: 'Aurora Desk Lamp', unitsSold: 3, revenueInCents: 46_080_000 },
+      {
+        productId: '3f2a9c1e-5b7d-4e8a-9c21-0a1b2c3d4e03',
+        name: 'Terra Backpack',
+        unitsSold: 1,
+        revenueInCents: 14_040_000,
+      },
+    ],
+    payments: {
+      byStatus: [
+        { status: 'APPROVED', count: 3 },
+        { status: 'DECLINED', count: 1 },
+        { status: 'ERROR', count: 0 },
+        { status: 'VOIDED', count: 0 },
+        { status: 'PENDING', count: 1 },
+      ],
+      byCardBrand: [
+        { brand: 'VISA', attempts: 4, approved: 3 },
+        { brand: 'MASTERCARD', attempts: 1, approved: 0 },
+      ],
+    },
+    generatedAt: '2026-10-10T12:00:00.000Z',
     ...overrides,
   };
 }

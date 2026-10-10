@@ -57,7 +57,7 @@ export function CatalogueToolbar({ search, sort, total, onSearch, onSort }: Cata
               ),
             },
           }}
-          sx={{ flex: 1 }}
+          sx={{ flex: 1, minWidth: 0 }}
         />
         <TextField
           select
@@ -65,7 +65,9 @@ export function CatalogueToolbar({ search, sort, total, onSearch, onSort }: Cata
           label="Sort by"
           value={sort}
           onChange={(event) => onSort(event.target.value as CatalogueSort)}
-          sx={{ minWidth: { sm: 220 } }}
+          // The theme makes text fields full width; beside the search this one has a fixed width.
+          fullWidth={false}
+          sx={{ width: { xs: '100%', sm: 240 }, flexShrink: 0 }}
         >
           {CATALOGUE_SORTS.map((option) => (
             <MenuItem key={option} value={option}>

@@ -126,6 +126,28 @@ export type DeliveryAddressPatch = Partial<
   }
 >;
 
+/** `GET /reports/summary`: aggregates only, no personal data. */
+export interface SalesSummary {
+  currency: string;
+  range: { from: string; to: string; days: number };
+  totals: {
+    revenueInCents: number;
+    approvedOrders: number;
+    unitsSold: number;
+    averageOrderInCents: number;
+    totalAttempts: number;
+    /** Approved ÷ resolved attempts, 0–1. */
+    approvalRate: number;
+  };
+  salesByDay: { date: string; revenueInCents: number; orders: number }[];
+  topProducts: { productId: string; name: string; unitsSold: number; revenueInCents: number }[];
+  payments: {
+    byStatus: { status: TransactionStatus; count: number }[];
+    byCardBrand: { brand: CardBrand; attempts: number; approved: number }[];
+  };
+  generatedAt: string;
+}
+
 export function isFinalStatus(status: TransactionStatus): boolean {
   return status !== 'PENDING';
 }

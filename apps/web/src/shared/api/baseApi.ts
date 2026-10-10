@@ -16,6 +16,7 @@ import {
   type PaymentConfig,
   type Product,
   type ProductsPage,
+  type SalesSummary,
   type Transaction,
 } from './types';
 import { createUiError, toUiError, type UiError } from './uiError';
@@ -125,6 +126,9 @@ export const baseApi = createApi({
         }
       },
     }),
+    getSalesSummary: build.query<SalesSummary, number>({
+      query: (days) => ({ url: '/reports/summary', params: { days } }),
+    }),
     getTransactionDelivery: build.query<Delivery, string>({
       query: (transactionId) => `/transactions/${encodeURIComponent(transactionId)}/delivery`,
       providesTags: (_result, _error, transactionId) => [{ type: 'Delivery', id: transactionId }],
@@ -152,6 +156,7 @@ export const {
   useGetPaymentConfigQuery,
   useCreateTransactionMutation,
   useGetTransactionQuery,
+  useGetSalesSummaryQuery,
   useGetTransactionDeliveryQuery,
   useUpdateDeliveryAddressMutation,
 } = baseApi;
