@@ -15,6 +15,29 @@ export interface Product {
   stock: number;
 }
 
+export const CATALOGUE_SORTS = ['featured', 'name', 'price-asc', 'price-desc'] as const;
+export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
+
+/** Query of `GET /products`. Without `pageSize` the API returns every match in one page. */
+export interface CatalogueQuery {
+  page: number;
+  pageSize: number;
+  search: string;
+  sort: CatalogueSort;
+}
+
+export interface PageMeta {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ProductsPage {
+  items: Product[];
+  meta: PageMeta;
+}
+
 export interface PaymentConfig {
   publicKey: string;
   tokenizationUrl: string;
