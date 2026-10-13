@@ -1,0 +1,15 @@
+Caveman
+Copyright 2026 Julius Brussee
+
+SKILL.md in this folder is an unmodified copy of skills/caveman/SKILL.md from
+https://github.com/JuliusBrussee/caveman at commit
+2e08b9177c07bb7249a8a2d1a6758e5db281d002 (version 3.2.0), used under the Apache
+License, Version 2.0 (see LICENSE).
+
+Before Caveman 3.0.0, the parts of that repository outside the Engine-linked
+runtime were licensed under the MIT License. Contributions made to those parts
+before 3.0.0 were received under the MIT License and remain available under it.
+Its copyright and permission notice is retained in LICENSE-MIT.
+
+Only the base skill is copied. The rest of the upstream project (proxy, CLI,
+hooks, the ultracave and megacave skills) is not part of this repository.
