@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { delay, http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { createAppStore } from '@/app/store';
 import { baseApi } from '@/shared/api/baseApi';
 import {
@@ -11,6 +11,7 @@ import {
   buildTransaction,
   errorEnvelope,
 } from '@/test/builders';
+import { createGate } from '@/test/gate';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { seedProducts } from '@/test/seed';
 import { server } from '@/test/server';
@@ -93,10 +94,11 @@ describe('SummaryBackdrop', () => {
 
   it('AC-5: disables the actions while paying and cannot be dismissed', async () => {
     let requests = 0;
+    const api = createGate();
     server.use(
       http.post(`${API_URL}/transactions`, async () => {
         requests += 1;
-        await delay(120);
+        await api.opened;
         return HttpResponse.json({ data: buildTransaction() }, { status: 201 });
       }),
     );
@@ -112,6 +114,7 @@ describe('SummaryBackdrop', () => {
     await user.click(screen.getByTestId('summary-backdrop'));
     expect(store.getState().checkout.step).toBe('SUMMARY');
 
+    api.open();
     await waitFor(() => expect(store.getState().checkout.step).toBe('STATUS'));
     expect(requests).toBe(1);
   });
@@ -199,9 +202,10 @@ describe('SummaryBackdrop', () => {
   });
 
   it('AC-10: pay is disabled while the fees load', async () => {
+    const api = createGate();
     server.use(
       http.get(`${API_URL}/payment-config`, async () => {
-        await delay(60);
+        await api.opened;
         return HttpResponse.json({ data: buildPaymentConfig() });
       }),
     );
@@ -210,6 +214,7 @@ describe('SummaryBackdrop', () => {
     expect(payButton()).toBeDisabled();
     expect(within(sheet).getAllByLabelText('Loading amount')).toHaveLength(3);
 
+    api.open();
     await waitFor(() => expect(payButton()).toBeEnabled());
   });
 
