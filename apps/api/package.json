@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "jest",
     "test:cov": "jest --coverage",
+    "test:integration": "jest --config jest.integration.config.js",
     "tables:create": "nest build && node dist/seed/create-tables.js",
     "seed": "nest build && node dist/seed/seed.js"
   },
