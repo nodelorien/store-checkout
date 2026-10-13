@@ -11,9 +11,11 @@ import {
   PRODUCT_ID,
   TRANSACTION_ID,
   buildCatalogue,
+  buildDelivery,
   buildTransaction,
   errorEnvelope,
 } from '@/test/builders';
+import { createGate } from '@/test/gate';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { server } from '@/test/server';
 import { delivery, paymentInfoState, statusState } from '@/test/states';
@@ -63,6 +65,14 @@ describe('TransactionStatusPage', () => {
       },
       quantity: 2,
     });
+    // The form's delivery recap shows only until the API's delivery arrives, so hold that answer.
+    const deliveryApi = createGate();
+    server.use(
+      http.get(`${API_URL}/transactions/:id/delivery`, async () => {
+        await deliveryApi.opened;
+        return HttpResponse.json({ data: buildDelivery() });
+      }),
+    );
     renderStatus();
 
     expect(await screen.findByRole('heading', { name: 'Payment approved' })).toBeInTheDocument();
@@ -77,6 +87,10 @@ describe('TransactionStatusPage', () => {
     expect(screen.getByText('Cra 7 # 71-21, Apto 501, Bogota, Cundinamarca')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Back to store' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+
+    deliveryApi.open();
+    expect(await screen.findByRole('region', { name: 'Order tracking' })).toBeInTheDocument();
+    expect(screen.queryByText('Ada Lovelace')).not.toBeInTheDocument();
   });
 
   it('AC-3: declined shows the gateway reason with "Try again" and "Back to store"', async () => {
