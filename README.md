@@ -32,6 +32,7 @@ that runs both.
 - [Project structure](#project-structure)
 - [Known limitations](#known-limitations)
 - [Documentation](#documentation)
+- [AI-assisted development](#ai-assisted-development)
 
 ## Features
 
@@ -526,3 +527,157 @@ specs/                 one specification per feature
 - [`docs/product/prd.md`](docs/product/prd.md): requirements
 - [`specs/`](specs/README.md): the specification written before each feature
 - [`AGENTS.md`](AGENTS.md): project rules and conventions for contributors
+
+## AI-assisted development
+
+This project was built with coding agents, and the repository carries the context they work
+from. The same files are the documentation a person reads: there is no second, hidden set of
+instructions. This section explains how that context is organised and how to work with it.
+
+### Supported agents
+
+Three command-line agents can work on the repository and they share one set of rules.
+
+| Agent | Instructions it reads | Subagent definitions |
+| --- | --- | --- |
+| Claude Code | `CLAUDE.md`, which only imports `AGENTS.md` | `.claude/agents/*.md` |
+| Codex | `AGENTS.md` | `.codex/agents/*.toml` |
+| opencode | `AGENTS.md` | `.opencode/agents/*.md` |
+
+Each tool has its own file format for subagents, so those files are kept deliberately thin: a
+name, a scope and one line that says which skill to load. The knowledge lives in the skill, in
+one place. `.claude/skills` is a symbolic link to `.agents/skills`, so no agent has its own copy.
+
+### Context layers
+
+A single large instructions file is read on every turn, costs tokens every time and goes stale.
+The documentation is split into layers instead, and an agent loads the lowest layer that answers
+its question.
+
+```mermaid
+flowchart TD
+    L0["L0 · AGENTS.md<br/>hard rules and routing<br/>always loaded"]
+    L1["L1 · product and system<br/>docs/product, docs/architecture"]
+    L2["L2 · component entry point<br/>docs/components/&lt;c&gt;/CONTEXT.md"]
+    L3["L3 · one topic<br/>docs/components/&lt;c&gt;/&lt;topic&gt;.md"]
+    L4["L4 · feature spec<br/>specs/NNN-slug/spec.md"]
+    ADR["ADR · why a decision was made<br/>docs/adr"]
+
+    L0 --> L1
+    L0 --> L2
+    L2 --> L3
+    L0 --> L4
+    L2 -.->|only when questioning a decision| ADR
+```
+
+| Layer | What it holds | Where | Size cap | Loaded when |
+| --- | --- | --- | --- | --- |
+| L0 | Hard rules, the loading protocol, task routing | `AGENTS.md` | 80 lines | Always |
+| L1 | Requirements and the shape of the system | `docs/product/prd.md`, `docs/architecture/` | none | Planning, work across components |
+| L2 | The entry point of one component | `docs/components/<c>/CONTEXT.md` | 80 lines | Any work inside that component |
+| L3 | One topic in depth (API contract, data model, state, caching…) | `docs/components/<c>/<topic>.md` | 150 lines | Only the topic being touched |
+| L4 | One feature: scope and acceptance criteria | `specs/NNN-slug/` | 120 lines | Only the feature in progress |
+| ADR | Why a decision was made | `docs/adr/` | 60 lines | Only to question or change a decision |
+
+The rules that keep this working are short. Read L2 before L3. Do not load another component's
+docs unless the task crosses the boundary; the contract between the API and the web app is
+`docs/components/backend/api.md`. Never copy content between layers, link down instead. Change
+the docs in the same pull request as the behaviour.
+
+As an example, a task such as adding the Redis cache to the API needs `AGENTS.md`, the backend
+`CONTEXT.md`, two L3 documents (caching and data model) and the feature's spec: about 400 lines.
+The layered docs, decision records and specs together are close to 4,000.
+
+Every L1 to L3 document starts with a small header that tells an agent whether the file is worth
+reading:
+
+```yaml
+---
+layer: L3
+component: backend
+read-when: touching the cache, its keys or lifetimes, or adding a cached read
+---
+```
+
+### Skills and subagents
+
+A skill is a Markdown file with the rules of one role: what to read first, how to work and what
+to report. They follow the open Agent Skills format and live in [`.agents/skills/`](.agents/skills).
+
+| Skill | Role | Subagent that loads it |
+| --- | --- | --- |
+| `sdd-workflow` | Write the spec, the plan and the task list of a feature | `spec-author` |
+| `backend-dev` | API, domain, persistence and the gateway adapter | `backend-engineer` |
+| `frontend-dev` | Pages, components, forms, Redux state and the checkout flow | `frontend-engineer` |
+| `qa-testing` | Jest tests and the coverage gate | `qa-engineer` |
+| `infra-deploy` | CDK stack, CI/CD and environment configuration | `devops-engineer` |
+| `reviewer` | Read-only review of a diff against its spec, the architecture and security rules | `reviewer` |
+| `ponytail`, `caveman` | Token savers, described [below](#token-savers) | every session |
+
+`AGENTS.md` has a table that routes each kind of task to its skill and to the documents that
+skill needs, so an agent does not have to explore the repository to find out where to start.
+
+### Spec-driven workflow
+
+No feature is written without a specification. Each one lives in [`specs/`](specs/README.md),
+has its own branch (`feat/NNN-slug`) and its own pull request, and goes through the same steps:
+
+1. `spec.md` says what the feature does from the outside and lists numbered acceptance criteria,
+   including the failure paths.
+2. A plan and an ordered task list follow, tests before implementation.
+3. The implementation is reviewed against the spec, not against taste.
+
+Requirements stay traceable from end to end: a requirement in the PRD (`FR-06`) is referenced by
+a spec, the spec's criteria are numbered (`AC-3`), and the test that proves a criterion carries
+that number in its name. The repository has 24 specs; the roadmap in `specs/README.md` lists them.
+
+### Decision records
+
+An ADR records why a decision was made and what was rejected. Agents do not read them to learn
+what to do, only before proposing to change one. Accepted records are not edited: a new record
+supersedes the old one, as 0011 did with 0006.
+
+| # | Decision |
+| --- | --- |
+| [0001](docs/adr/0001-monorepo-layout.md) | Monorepo with `apps/api`, `apps/web` and `infra` |
+| [0002](docs/adr/0002-hexagonal-backend.md) | Hexagonal architecture on NestJS |
+| [0003](docs/adr/0003-railway-oriented-use-cases.md) | Railway-oriented use cases with an in-house `Result` type |
+| [0004](docs/adr/0004-dynamodb-persistence.md) | DynamoDB as the database |
+| [0005](docs/adr/0005-redux-toolkit-state.md) | Redux Toolkit with selective persistence |
+| [0006](docs/adr/0006-stock-reservation.md) | Reserve stock while a payment is pending (superseded by 0011) |
+| [0007](docs/adr/0007-client-side-card-tokenization.md) | Tokenize cards in the browser |
+| [0008](docs/adr/0008-aws-serverless-deployment.md) | Serverless deployment on AWS with CDK |
+| [0009](docs/adr/0009-jest-testing-strategy.md) | Jest everywhere, 80 % coverage enforced |
+| [0010](docs/adr/0010-layered-ai-context.md) | Layered AI context and spec-driven development |
+| [0011](docs/adr/0011-stock-update-on-approval.md) | Update stock only when the payment is approved |
+| [0012](docs/adr/0012-atomic-layering-of-shared-ui.md) | Atomic layering of the shared UI |
+| [0013](docs/adr/0013-redis-cache-aside.md) | Optional Redis cache-aside, fail-open |
+| [0014](docs/adr/0014-token-saving-skills.md) | Token-saving skills for code and chat |
+
+### Token savers
+
+The layers limit what an agent reads. Two community skills limit what it writes, which is where
+most of the cost of a session is. Both are copied into the repository unmodified, with their
+licences, and `AGENTS.md` turns them on for every session.
+
+| Skill | What it does | Source |
+| --- | --- | --- |
+| [`ponytail`](.agents/skills/ponytail/SKILL.md) | Takes the smallest change that fully solves the task: reuse what the codebase has, then the standard library, then an installed dependency, and only then new code. No abstractions or options nobody asked for. | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) 5.2.0, MIT |
+| [`caveman`](.agents/skills/caveman/SKILL.md) | Makes chat replies terse: the answer first, no greeting, recap or filler, with code, commands, paths and numbers kept exact. | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) 3.2.0, Apache-2.0 |
+
+Three limits apply here:
+
+- The project's hard rules come first. A spec, a test for each acceptance criterion, the coverage
+  gate and the docs are part of the task, not extras to be skipped.
+- `caveman` applies to chat only. Code, comments, commit messages, documentation, specs and pull
+  requests are written in full sentences, which is also what the skill itself prescribes.
+- Only the two skill files are used. The proxies, hooks and installers of both projects are not
+  part of this repository.
+
+To turn one off for a session, tell the agent "stop ponytail", "stop caveman" or "normal mode".
+
+The savings were not measured in this project. The authors publish their own figures: ponytail
+reports about half the lines of code and 45 % fewer output tokens than the same agent without the
+skill, and caveman cites a JetBrains study of 86 coding tasks that found 8.5 % fewer output tokens
+with no measurable loss of quality. [ADR-0014](docs/adr/0014-token-saving-skills.md) has the
+reasoning and the alternatives that were rejected.

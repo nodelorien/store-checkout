@@ -62,6 +62,13 @@ unless the task crosses the boundary; the contract between components is `docs/c
 Skills live in `.agents/skills/` (`.claude/skills` is a symlink to it). Subagents: `.claude/agents/`,
 `.codex/agents/`, `.opencode/agents/` — thin wrappers over the same skills.
 
+## Token savers (on in every session)
+
+Load `ponytail` (smallest change that fully solves the task) and `caveman` (terse chat replies).
+The hard rules win over both: spec, a test per AC, coverage and docs are never "extra". Everything
+written to the repo (code, comments, commits, docs, specs, PRs) stays in plain full sentences.
+Off for a session: "stop ponytail" / "stop caveman". Why: ADR-0014.
+
 ## Keeping docs alive
 
 - Changing behaviour → update the L3 doc in the same PR. Changing a decision → new ADR that supersedes the old one.
