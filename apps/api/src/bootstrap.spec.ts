@@ -257,4 +257,17 @@ describe('HTTP pipeline options', () => {
     expect(response.body.error).toMatchObject({ code: 'RATE_LIMITED', details: [] });
     await app.close();
   });
+
+  it('023 AC-7: the limit per minute comes from the configuration', async () => {
+    const app = await createHttpTestApp(
+      { controllers: [ProbeController] },
+      testConfig({ rateLimitPerMinute: 2 }),
+    );
+    const server = app.getHttpServer();
+
+    await request(server).get('/api/v1/probe/ok').expect(200);
+    await request(server).get('/api/v1/probe/ok').expect(200);
+    await request(server).get('/api/v1/probe/ok').expect(429);
+    await app.close();
+  });
 });
