@@ -37,7 +37,8 @@ customers 1 ──── n transactions n ──── 1 products
 | Find transaction by reference (webhook) | `Query byReference` |
 | Delivery of a transaction | `Query byTransaction` |
 
-In-memory paging reads the whole catalogue on every request: fine for hundreds of products, not
+Both scans sit behind the Redis cache when one is configured (`caching.md`), so they run at
+most once per cache lifetime. Without it, in-memory paging reads the whole catalogue on every request: fine for hundreds of products, not
 for millions (that needs a keyed/indexed query and cursor paging). The reports scan reads the
 whole transactions table and filters server-side — cost grows with the table, not with `days`;
 past a few thousand transactions add a GSI on a day bucket + `createdAt`. Its projection holds

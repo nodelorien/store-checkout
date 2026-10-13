@@ -17,6 +17,7 @@ Load an ADR only to learn **why** a decision was made or before proposing to cha
 | [0010](0010-layered-ai-context.md) | Layered AI context + spec-driven development | Accepted |
 | [0011](0011-stock-update-on-approval.md) | Update stock only when the payment is approved | Accepted |
 | [0012](0012-atomic-layering-of-shared-ui.md) | Atomic layering of `shared/`, feature folders kept | Accepted |
+| [0013](0013-redis-cache-aside.md) | Optional Redis cache-aside for the scanned reads, fail-open | Accepted |
 
 ## Rules
 

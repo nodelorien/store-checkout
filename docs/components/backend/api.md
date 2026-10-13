@@ -138,6 +138,7 @@ A declined card is **not** an HTTP error: `201` with `status: "DECLINED"`.
 ## HTTP hygiene
 
 - `Cache-Control: no-store` on everything under `/transactions`, `/customers`, `/deliveries`, `/payment-config`, `/webhooks`, `/reports`; `/products` uses `max-age=0, must-revalidate`.
-- `helmet`, body limit 10 kb, rate limit (`@nestjs/throttler`): 60 req/min global, 10/min on `POST /transactions`.
+- `helmet`, body limit 10 kb, rate limit (`@nestjs/throttler`): `RATE_LIMIT_PER_MINUTE` (60) per client address, 10/min on `POST /transactions`.
+- `Cache-Control` is about the browser and CDN only; the API's own Redis cache (`caching.md`) is independent of it.
 - CORS: disabled in production (same origin); allow `http://localhost:5173` in development only.
 - `X-Request-Id` echoed/generated on every response.

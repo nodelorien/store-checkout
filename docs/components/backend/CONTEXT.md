@@ -6,7 +6,7 @@ read-when: any work inside apps/api
 
 # Backend context (`apps/api`)
 
-NestJS 11 API (pinned: v12 is ESM-only and breaks the CommonJS Jest + Lambda bundle setup). Hexagonal (ADR-0002), ROP use cases (ADR-0003), DynamoDB (ADR-0004), runs on Lambda (ADR-0008).
+NestJS 11 API (pinned: v12 is ESM-only and breaks the CommonJS Jest + Lambda bundle setup). Hexagonal (ADR-0002), ROP use cases (ADR-0003), DynamoDB (ADR-0004), optional Redis cache (ADR-0013), runs on Lambda (ADR-0008).
 
 ## Deep dives (L3) — load only what you touch
 
@@ -16,6 +16,7 @@ NestJS 11 API (pinned: v12 is ESM-only and breaks the CommonJS Jest + Lambda bun
 | `api.md` | adding/changing an endpoint, DTO, status code (also the frontend's contract) |
 | `data-model.md` | touching repositories, keys, atomic writes, seed data |
 | `payment-gateway.md` | touching the outbound gateway adapter or payment resolution |
+| `caching.md` | touching the Redis cache, its keys or lifetimes, or adding a cached read |
 | `testing.md` | writing tests or fixing coverage |
 
 ## Folder structure
@@ -28,6 +29,7 @@ apps/api/src/
     errors/          DomainError union, HTTP error mapper
     config/          env schema + typed ConfigService
     dynamodb/        DocumentClient provider
+    cache/           Redis and no-op adapters of the Cache port, read-through helper
     http/            filters, interceptors (logging w/ redaction), result-to-response helper
   modules/
     products/ customers/ transactions/ deliveries/ payment-config/ reports/
@@ -74,4 +76,4 @@ execute(input: CreateTransactionInput): Promise<Result<TransactionView, DomainEr
 ## Commands (from repo root, once scaffolded)
 
 `npm run dev -w apps/api` · `npm run test -w apps/api` · `npm run test:cov -w apps/api` ·
-`npm run tables:create -w apps/api` · `npm run seed -w apps/api` · `docker compose up dynamodb` (local DB)
+`npm run tables:create -w apps/api` · `npm run seed -w apps/api` · `docker compose up -d dynamodb redis` (local DB and cache)

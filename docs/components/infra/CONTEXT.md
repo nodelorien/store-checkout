@@ -19,7 +19,7 @@ AWS CDK app in TypeScript (ADR-0008). One stack, three constructs. Everything fr
 Outputs: `SiteUrl`, `ApiDocsUrl` (`…/api/docs`), `ApiBaseUrl`, `ProductsTableName`.
 
 Deploy-time variables (shell or GitHub repository variables): `PAYMENT_GATEWAY_BASE_URL`,
-`PAYMENT_GATEWAY_PUBLIC_KEY`, optional `STAGE` (default `prod`), `BASE_FEE_IN_CENTS`, `DELIVERY_FEE_IN_CENTS`.
+`PAYMENT_GATEWAY_PUBLIC_KEY`, optional `STAGE` (default `prod`), `BASE_FEE_IN_CENTS`, `DELIVERY_FEE_IN_CENTS`, `REDIS_URL_PARAM`.
 
 ## Security headers (CloudFront response-headers policy)
 
@@ -38,6 +38,7 @@ Goal: grade A or better on Mozilla Observatory; record the result in the README.
 |---|---|---|
 | `PAYMENT_GATEWAY_BASE_URL`, `PAYMENT_GATEWAY_PUBLIC_KEY` | Lambda env (from CDK context / CI vars) | plain |
 | `PAYMENT_GATEWAY_PRIVATE_KEY`, `PAYMENT_GATEWAY_INTEGRITY_SECRET`, `PAYMENT_GATEWAY_EVENTS_SECRET` | SSM Parameter Store `SecureString` at `/checkout/<stage>/payment-gateway/{private-key,integrity-secret,events-secret}`; the Lambda receives only the names (`*_PARAM` env vars) and reads the values at cold start | secret |
+| `REDIS_URL` | optional. SSM `SecureString` named by the deploy variable `REDIS_URL_PARAM` (suggested `/checkout/<stage>/cache/redis-url`), read at cold start; the role may read only that parameter. Redis itself is not provisioned by the stack (ADR-0013) | secret |
 | `TABLE_*`, `BASE_FEE_IN_CENTS`, `DELIVERY_FEE_IN_CENTS`, `NODE_ENV`, `LOG_LEVEL` | Lambda env | plain |
 | `VITE_API_BASE_URL` | web build | `/api/v1` in prod, `http://localhost:3000/api/v1` in dev |
 
