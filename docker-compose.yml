@@ -4,3 +4,21 @@ services:
     command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-inMemory']
     ports:
       - '8000:8000'
+
+  redis:
+    image: redis:7-alpine
+    # A cache only: no persistence, and evict the least recently used keys when full.
+    command:
+      [
+        'redis-server',
+        '--save',
+        '',
+        '--appendonly',
+        'no',
+        '--maxmemory',
+        '64mb',
+        '--maxmemory-policy',
+        'allkeys-lru',
+      ]
+    ports:
+      - '6379:6379'

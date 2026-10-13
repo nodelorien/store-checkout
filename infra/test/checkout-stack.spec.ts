@@ -91,6 +91,35 @@ describe('CheckoutStack', () => {
       );
     });
 
+    it('023 AC-8: without a Redis parameter the function gets no cache setting', () => {
+      const [fn] = Object.values(template.findResources('AWS::Lambda::Function')).filter(
+        (resource) => resource.Properties.FunctionName === 'checkout-test-api',
+      );
+
+      expect(fn.Properties.Environment.Variables).not.toHaveProperty('REDIS_URL_PARAM');
+      expect(fn.Properties).not.toHaveProperty('VpcConfig');
+    });
+
+    it('023 AC-8: with a Redis parameter the function gets its name and may read only it', () => {
+      const cached = synthesize({ redisUrlParameter: '/checkout/test/cache/redis-url' });
+
+      cached.hasResourceProperties('AWS::Lambda::Function', {
+        Environment: {
+          Variables: Match.objectLike({ REDIS_URL_PARAM: '/checkout/test/cache/redis-url' }),
+        },
+      });
+      const statements = Object.values(cached.findResources('AWS::IAM::Policy')).flatMap(
+        (policy) => policy.Properties.PolicyDocument.Statement as Array<Record<string, unknown>>,
+      );
+      const ssm = statements.find((statement) =>
+        JSON.stringify(statement.Action).includes('ssm:GetParameter'),
+      );
+      const resources = JSON.stringify(ssm?.Resource);
+      expect(resources).toContain('parameter/checkout/test/payment-gateway/*');
+      expect(resources).toContain('parameter/checkout/test/cache/redis-url');
+      expect(resources).not.toContain('parameter/*');
+    });
+
     it('keeps function logs for one week', () => {
       template.hasResourceProperties('AWS::Logs::LogGroup', { RetentionInDays: 7 });
     });

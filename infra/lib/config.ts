@@ -7,6 +7,11 @@ export interface DeploymentConfig {
   gatewayPublicKey: string;
   baseFeeInCents: number;
   deliveryFeeInCents: number;
+  /**
+   * Optional name of the SSM SecureString holding the Redis URL. Without it the API runs
+   * without a cache. The URL itself is a secret (it may carry a password) and never appears here.
+   */
+  redisUrlParameter?: string;
   /** Directory holding the bundled Lambda code (`index.js` exporting `handler`). */
   apiCodePath: string;
   /** Directory holding the built SPA. */
@@ -35,6 +40,17 @@ function positiveInteger(env: Env, name: string, fallback: number): number {
   return value;
 }
 
+function parameterName(env: Env, name: string): string | undefined {
+  const value = env[name]?.trim();
+  if (!value) {
+    return undefined;
+  }
+  if (!/^\/[\w.\-/]+$/.test(value)) {
+    throw new Error(`${name} must be an SSM parameter name starting with "/"`);
+  }
+  return value;
+}
+
 /** Origin (scheme + host) of the gateway, used in the Content-Security-Policy. */
 export function originOf(url: string): string {
   const parsed = new URL(url);
@@ -57,6 +73,7 @@ export function loadDeploymentConfig(
     gatewayPublicKey: required(env, 'PAYMENT_GATEWAY_PUBLIC_KEY'),
     baseFeeInCents: positiveInteger(env, 'BASE_FEE_IN_CENTS', 250_000),
     deliveryFeeInCents: positiveInteger(env, 'DELIVERY_FEE_IN_CENTS', 800_000),
+    redisUrlParameter: parameterName(env, 'REDIS_URL_PARAM'),
     ...paths,
   };
 }
