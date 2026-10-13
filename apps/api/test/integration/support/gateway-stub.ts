@@ -38,8 +38,9 @@ async function readJson(request: IncomingMessage): Promise<Record<string, unknow
 }
 
 /**
- * Local HTTP stand-in for the payment gateway, speaking the wire format the adapter expects.
- * It only exists so integration and load tests never send traffic to the real sandbox.
+ * Local HTTP stand-in for the payment gateway, speaking the wire format the adapter and the
+ * browser expect. It exists so integration tests, load tests and credential-less local runs
+ * never send traffic to the real sandbox. It accepts any card: never type a real one.
  */
 export class GatewayStub {
   readonly charges: Charge[] = [];
@@ -77,6 +78,25 @@ export class GatewayStub {
     }
     if (this.failWithStatus !== undefined) {
       return this.send(response, this.failWithStatus, { error: { type: 'UNAVAILABLE' } });
+    }
+
+    // The browser tokenizes cards straight against the gateway, from another origin.
+    if (request.method === 'OPTIONS') {
+      return this.send(response, 204, undefined);
+    }
+    if (request.method === 'POST' && path === '/tokens/cards') {
+      const card = await readJson(request);
+      const number = String(card.number ?? '');
+      return this.send(response, 201, {
+        status: 'CREATED',
+        data: {
+          // The sandbox's declining test card maps to the declining token.
+          id: number.startsWith('4111') ? TOKENS.declined : TOKENS.approved,
+          brand: number.startsWith('5') ? 'MASTERCARD' : 'VISA',
+          last_four: number.slice(-4),
+          expires_at: new Date(Date.now() + 15 * 60_000).toISOString(),
+        },
+      });
     }
 
     if (request.method === 'GET' && path.startsWith('/merchants/')) {
@@ -124,7 +144,12 @@ export class GatewayStub {
   }
 
   private send(response: ServerResponse, status: number, body: unknown): void {
-    response.writeHead(status, { 'Content-Type': 'application/json' });
-    response.end(JSON.stringify(body));
+    response.writeHead(status, {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'authorization, content-type, accept',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    });
+    response.end(body === undefined ? undefined : JSON.stringify(body));
   }
 }

@@ -27,7 +27,8 @@ The real `AppModule` over HTTP against DynamoDB Local, Redis and `support/gatewa
 local HTTP stand-in for the gateway driven by the card token (`TOKENS`). Each file creates its
 own tables and deletes them. They cover what fakes cannot: the atomic approval write and its
 stock condition under concurrency, the idempotency lock, indexes, cache hit / invalidation and
-expiry. Keep one behaviour per test and use a fresh product per test.
+expiry. Keep one behaviour per test and use a fresh product per test. The same stand-in runs
+as a process with `npm run gateway:stub -w apps/api` (local runs without credentials, load tests).
 
 ## Conventions
 

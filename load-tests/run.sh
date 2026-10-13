@@ -37,7 +37,7 @@ node load-tests/prepare-data.mjs
 docker compose exec -T redis redis-cli FLUSHALL >/dev/null
 
 PORT="$STUB_PORT" GATEWAY_STUB_DELAY_MS="${GATEWAY_DELAY_MS:-150}" \
-  node_modules/.bin/tsx apps/api/test/integration/support/run-gateway-stub.ts &
+  npm run --silent gateway:stub -w apps/api &
 PIDS+=("$!")
 
 if [ "$CACHE" = on ]; then
