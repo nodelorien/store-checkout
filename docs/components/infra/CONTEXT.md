@@ -49,7 +49,7 @@ Secrets are created once with the AWS CLI, **never** through CDK source or CI lo
 
 | Workflow | Trigger | Jobs |
 |---|---|---|
-| `ci.yml` | pull request, push | install → lint → typecheck → `test:cov` (api, web, infra; fails < 80%) → build |
+| `ci.yml` | pull request, push | `verify`: install → lint → typecheck → `test:cov` (api, web, infra; fails < 80%) → build · `integration`: DynamoDB Local + Redis → `test:integration` |
 | `deploy.yml` | push to `main` (after CI) | build web + api → `cdk deploy --require-approval never` → seed products → smoke test `/api/v1/health` |
 
 AWS auth through a GitHub OIDC role (`vars.AWS_DEPLOY_ROLE_ARN`, no long-lived keys); the deploy job is skipped until that variable exists.

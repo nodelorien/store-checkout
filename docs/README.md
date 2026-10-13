@@ -7,6 +7,7 @@ AGENTS.md                         L0  router + hard rules (always loaded)
 docs/
   product/prd.md                  L1  what we build and why (requirements FR-*/NFR-*)
   architecture/overview.md        L1  system shape, component boundaries, payment sequence
+  architecture/performance.md     L1  load tests: how to run them, results, limits
   adr/                            --  decision records (load only to learn *why*)
   components/
     backend/   CONTEXT.md         L2  entry point for apps/api
