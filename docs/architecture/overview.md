@@ -22,6 +22,7 @@ Monorepo with npm-compatible workspaces (ADR-0001). No shared runtime package: t
 ```
 Browser ──HTTPS──> CloudFront ──┬── /*       → S3 (SPA static assets, product images)
    │                            └── /api/*   → API Gateway (HTTP API) → Lambda (NestJS) → DynamoDB
+   │                                                                        │   └ ─ → Redis (optional cache, ADR-0013)
    │                                                                        │
    └── card tokenization (public key) ──────────> Payment gateway <── charge (private key) ──┘
 ```
@@ -62,6 +63,7 @@ Details: backend `payment-gateway.md` and `domain.md`; frontend `checkout-flow.m
 | Card data | Client-side tokenization; API never sees PAN | 0007 |
 | Deployment | S3 + CloudFront + API Gateway + Lambda, CDK | 0008 |
 | Testing | Jest everywhere, 80% global threshold enforced in CI | 0009 |
+| Caching | Optional Redis cache-aside for the scanned reads, fail-open | 0013 |
 | AI context | Layered docs + SDD + shared skills | 0010 |
 
 ## Conventions shared by all components
