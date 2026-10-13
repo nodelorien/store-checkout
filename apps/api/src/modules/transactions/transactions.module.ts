@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { APP_CONFIG, AppConfig } from '../../shared/config/app-config';
 import { CustomersModule } from '../customers/customers.module';
+import {
+  CATALOGUE_INVALIDATOR,
+  CatalogueInvalidator,
+} from '../products/application/ports/catalogue-invalidator.port';
 import { ProductsModule } from '../products/products.module';
 import {
   PAYMENT_POLL_CONFIG,
@@ -15,13 +19,20 @@ import { ResolveTransactionUseCase } from './application/use-cases/resolve-trans
 import { PaymentGatewayModule } from './infrastructure/gateway/payment-gateway.module';
 import { GatewayWebhookController } from './infrastructure/http/gateway-webhook.controller';
 import { TransactionsController } from './infrastructure/http/transactions.controller';
+import { CatalogueInvalidatingTransactionRepository } from './infrastructure/persistence/catalogue-invalidating-transaction.repository';
 import { DynamoDbTransactionRepository } from './infrastructure/persistence/dynamodb-transaction.repository';
 
 @Module({
   imports: [ProductsModule, CustomersModule, PaymentGatewayModule],
   controllers: [TransactionsController, GatewayWebhookController],
   providers: [
-    { provide: TRANSACTION_REPOSITORY, useClass: DynamoDbTransactionRepository },
+    DynamoDbTransactionRepository,
+    {
+      provide: TRANSACTION_REPOSITORY,
+      inject: [DynamoDbTransactionRepository, CATALOGUE_INVALIDATOR],
+      useFactory: (repository: DynamoDbTransactionRepository, catalogue: CatalogueInvalidator) =>
+        new CatalogueInvalidatingTransactionRepository(repository, catalogue),
+    },
     {
       provide: PAYMENT_POLL_CONFIG,
       inject: [APP_CONFIG],

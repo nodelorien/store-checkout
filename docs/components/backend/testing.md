@@ -19,6 +19,17 @@ Jest + `ts-jest` (or `@swc/jest`). Threshold 80% global (statements, branches, f
 | `infrastructure/gateway` | request building, signature, status mapping, timeout/4xx/5xx → errors | mocked HTTP client |
 | `infrastructure/http` | DTO validation, status codes, error envelope | Nest `Test.createTestingModule` + `supertest`, use cases faked |
 
+## Integration tests
+
+`npm run test:integration` (needs `docker compose up -d dynamodb redis`). Files:
+`apps/api/test/integration/*.int-spec.ts`, own config `jest.integration.config.js`, no coverage.
+The real `AppModule` over HTTP against DynamoDB Local, Redis and `support/gateway-stub.ts`, a
+local HTTP stand-in for the gateway driven by the card token (`TOKENS`). Each file creates its
+own tables and deletes them. They cover what fakes cannot: the atomic approval write and its
+stock condition under concurrency, the idempotency lock, indexes, cache hit / invalidation and
+expiry. Keep one behaviour per test and use a fresh product per test. The same stand-in runs
+as a process with `npm run gateway:stub -w apps/api` (local runs without credentials, load tests).
+
 ## Conventions
 
 - Files: `*.spec.ts` next to the source. Fakes and builders: `apps/api/test/{fakes,builders}/`.
@@ -26,7 +37,7 @@ Jest + `ts-jest` (or `@swc/jest`). Threshold 80% global (statements, branches, f
 - Builders for fixtures (`aProduct().withStock(0).build()`); no shared mutable fixtures.
 - Assert on `Result` with helpers `expectOk(result)` / `expectErr(result, 'CODE')`.
 - Inject `Clock` and `IdGenerator` ports; never call `Date.now()` / `randomUUID()` directly in domain or use cases.
-- No network, no real AWS, no DynamoDB Local in unit tests.
+- No network, no real AWS, no DynamoDB Local in unit tests (that is what integration tests are for).
 
 ## Mandatory scenarios for `CreateTransaction`
 

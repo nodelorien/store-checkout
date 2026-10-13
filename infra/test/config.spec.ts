@@ -40,6 +40,29 @@ describe('loadDeploymentConfig', () => {
     );
   });
 
+  it('023 AC-8: takes the name of the Redis URL parameter when given', () => {
+    const config = loadDeploymentConfig(
+      { ...baseEnv, REDIS_URL_PARAM: ' /checkout/prod/cache/redis-url ' },
+      paths,
+    );
+
+    expect(config.redisUrlParameter).toBe('/checkout/prod/cache/redis-url');
+    expect(loadDeploymentConfig({ ...baseEnv, REDIS_URL_PARAM: ' ' }, paths)).not.toHaveProperty(
+      'redisUrlParameter',
+      expect.anything(),
+    );
+  });
+
+  it.each(['redis://user:pw@host:6379', 'checkout/prod/redis', '/has space'])(
+    '023 AC-8: rejects "%s" as a parameter name without echoing it',
+    (value) => {
+      const load = () => loadDeploymentConfig({ ...baseEnv, REDIS_URL_PARAM: value }, paths);
+
+      expect(load).toThrow('REDIS_URL_PARAM must be an SSM parameter name');
+      expect(load).not.toThrow(/pw@host/);
+    },
+  );
+
   it('treats an empty fee as not provided', () => {
     expect(loadDeploymentConfig({ ...baseEnv, BASE_FEE_IN_CENTS: '' }, paths).baseFeeInCents).toBe(
       250_000,

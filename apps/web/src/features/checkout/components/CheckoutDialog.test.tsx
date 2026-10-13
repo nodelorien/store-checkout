@@ -1,7 +1,7 @@
 import type { Middleware } from '@reduxjs/toolkit';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { delay, http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { createAppStore } from '@/app/store';
 import { createActionRecorder } from '@/test/actionRecorder';
 import {
@@ -24,6 +24,7 @@ import {
   fillDelivery,
   termsCheckbox,
 } from '@/test/checkoutForm';
+import { createGate } from '@/test/gate';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { seedProducts } from '@/test/seed';
 import { server } from '@/test/server';
@@ -337,9 +338,10 @@ describe('CheckoutDialog', () => {
   });
 
   it('AC-13: disables the form actions while tokenizing', async () => {
+    const gateway = createGate();
     server.use(
       http.post(GATEWAY_TOKENIZATION_URL, async () => {
-        await delay(80);
+        await gateway.opened;
         return HttpResponse.json(buildGatewayTokenResponse(), { status: 201 });
       }),
     );
@@ -353,6 +355,7 @@ describe('CheckoutDialog', () => {
     await user.keyboard('{Escape}');
     expect(store.getState().checkout.step).toBe('PAYMENT_INFO');
 
+    gateway.open();
     await waitFor(() => expect(store.getState().checkout.step).toBe('SUMMARY'));
   });
 

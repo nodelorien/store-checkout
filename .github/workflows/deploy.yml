@@ -23,6 +23,8 @@ jobs:
       STAGE: prod
       PAYMENT_GATEWAY_BASE_URL: ${{ vars.PAYMENT_GATEWAY_BASE_URL }}
       PAYMENT_GATEWAY_PUBLIC_KEY: ${{ vars.PAYMENT_GATEWAY_PUBLIC_KEY }}
+      # Optional: name of the SSM SecureString with the Redis URL (empty = no cache).
+      REDIS_URL_PARAM: ${{ vars.REDIS_URL_PARAM }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

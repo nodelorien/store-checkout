@@ -17,8 +17,10 @@ describe('parseConfig', () => {
       logLevel: 'info',
       corsOrigins: [],
       trustProxy: false,
+      rateLimitPerMinute: 60,
       aws: { region: 'us-east-1', dynamoEndpoint: undefined },
       fees: { baseFeeInCents: 250000, deliveryFeeInCents: 800000 },
+      cache: { redisUrl: undefined, catalogueTtlSeconds: 60, reportsTtlSeconds: 30 },
       gateway: {
         baseUrl: 'https://gateway.test/v1',
         timeoutMs: 8000,
@@ -55,6 +57,48 @@ describe('parseConfig', () => {
       fees: { baseFeeInCents: 100, deliveryFeeInCents: 0 },
       gateway: { baseUrl: 'https://gateway.test/v1', timeoutMs: 500 },
     });
+  });
+
+  it('023 AC-7: reads the cache and rate limit settings', () => {
+    const config = parseConfig(
+      validEnv({
+        REDIS_URL: 'rediss://default:pw@cache.test:6380',
+        CACHE_TTL_CATALOGUE_SECONDS: '120',
+        CACHE_TTL_REPORTS_SECONDS: '5',
+        RATE_LIMIT_PER_MINUTE: '5000',
+      }),
+    ).unwrapOr(undefined);
+
+    expect(config).toMatchObject({
+      rateLimitPerMinute: 5000,
+      cache: {
+        redisUrl: 'rediss://default:pw@cache.test:6380',
+        catalogueTtlSeconds: 120,
+        reportsTtlSeconds: 5,
+      },
+    });
+  });
+
+  it('023 AC-7: rejects an invalid cache or rate limit setting without echoing it', () => {
+    const problems = parseConfig(
+      validEnv({
+        REDIS_URL: 'http://user:hunter2@cache.test',
+        CACHE_TTL_CATALOGUE_SECONDS: '0',
+        CACHE_TTL_REPORTS_SECONDS: '3601',
+        RATE_LIMIT_PER_MINUTE: '0',
+      }),
+    ).match(
+      () => [],
+      (list) => list,
+    );
+
+    expect(problems).toEqual([
+      'RATE_LIMIT_PER_MINUTE must be an integer between 1 and 100000',
+      'REDIS_URL must be a redis:// or rediss:// URL',
+      'CACHE_TTL_CATALOGUE_SECONDS must be an integer between 1 and 3600',
+      'CACHE_TTL_REPORTS_SECONDS must be an integer between 1 and 3600',
+    ]);
+    expect(problems.join(' ')).not.toContain('hunter2');
   });
 
   it('AC-5: trusts the proxy by default when running in Lambda', () => {
@@ -152,6 +196,16 @@ describe('loadConfig', () => {
     );
 
     expect(config.gateway.eventsSecret).toBe('events-from-ssm');
+  });
+
+  it('023 AC-7: reads the Redis URL from a parameter, and runs without cache when it is absent', async () => {
+    const env = validEnv({ REDIS_URL_PARAM: '/app/redis-url' });
+
+    const found = await loadConfig(env, async () => ({ '/app/redis-url': 'redis://cache:6379' }));
+    const missing = await loadConfig(env, noSecrets);
+
+    expect(found.cache.redisUrl).toBe('redis://cache:6379');
+    expect(missing.cache.redisUrl).toBeUndefined();
   });
 
   it('AC-5: throws a ConfigurationError listing the problems', async () => {

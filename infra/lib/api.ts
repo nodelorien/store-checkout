@@ -51,6 +51,7 @@ export class Api extends Construct {
         PAYMENT_GATEWAY_PRIVATE_KEY_PARAM: secrets.privateKey,
         PAYMENT_GATEWAY_INTEGRITY_SECRET_PARAM: secrets.integritySecret,
         PAYMENT_GATEWAY_EVENTS_SECRET_PARAM: secrets.eventsSecret,
+        ...(config.redisUrlParameter ? { REDIS_URL_PARAM: config.redisUrlParameter } : {}),
       },
     });
 
@@ -59,15 +60,14 @@ export class Api extends Construct {
     }
 
     const stack = Stack.of(this);
+    const parameterArn = (name: string): string =>
+      stack.formatArn({ service: 'ssm', resource: 'parameter', resourceName: name.slice(1) });
     this.handler.addToRolePolicy(
       new PolicyStatement({
         actions: ['ssm:GetParameter', 'ssm:GetParameters'],
         resources: [
-          stack.formatArn({
-            service: 'ssm',
-            resource: 'parameter',
-            resourceName: `${secrets.prefix.slice(1)}/*`,
-          }),
+          parameterArn(`${secrets.prefix}/*`),
+          ...(config.redisUrlParameter ? [parameterArn(config.redisUrlParameter)] : []),
         ],
       }),
     );

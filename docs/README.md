@@ -7,6 +7,7 @@ AGENTS.md                         L0  router + hard rules (always loaded)
 docs/
   product/prd.md                  L1  what we build and why (requirements FR-*/NFR-*)
   architecture/overview.md        L1  system shape, component boundaries, payment sequence
+  architecture/performance.md     L1  load tests: how to run them, results, limits
   adr/                            --  decision records (load only to learn *why*)
   components/
     backend/   CONTEXT.md         L2  entry point for apps/api
@@ -14,6 +15,7 @@ docs/
                api.md             L3  HTTP contract (shared with frontend)
                data-model.md      L3  DynamoDB tables, keys, atomic writes, seed
                payment-gateway.md L3  outbound gateway integration
+               caching.md         L3  Redis cache: keys, lifetimes, invalidation
                testing.md         L3  Jest strategy for the API
     frontend/  CONTEXT.md         L2  entry point for apps/web
                checkout-flow.md   L3  5-step flow, refresh recovery

@@ -11,6 +11,8 @@ export interface AppConfig {
   readonly logLevel: LogLevel;
   readonly corsOrigins: readonly string[];
   readonly trustProxy: boolean;
+  /** Requests one client address may make per minute across the whole API. */
+  readonly rateLimitPerMinute: number;
   readonly aws: { readonly region: string; readonly dynamoEndpoint?: string };
   readonly tables: {
     readonly products: string;
@@ -19,6 +21,12 @@ export interface AppConfig {
     readonly deliveries: string;
   };
   readonly fees: { readonly baseFeeInCents: number; readonly deliveryFeeInCents: number };
+  readonly cache: {
+    /** Optional: without it nothing is cached. May carry a password — never log it. */
+    readonly redisUrl?: string;
+    readonly catalogueTtlSeconds: number;
+    readonly reportsTtlSeconds: number;
+  };
   readonly gateway: {
     readonly baseUrl: string;
     readonly publicKey: string;
@@ -34,11 +42,12 @@ export interface AppConfig {
 
 export type Env = Readonly<Record<string, string | undefined>>;
 
-/** The three gateway secrets may come from env or from an SSM SecureString (`<NAME>_PARAM`). */
+/** Secrets that may come from env or from an SSM SecureString (`<NAME>_PARAM`). */
 export const SECRET_ENV_NAMES = [
   'PAYMENT_GATEWAY_PRIVATE_KEY',
   'PAYMENT_GATEWAY_INTEGRITY_SECRET',
   'PAYMENT_GATEWAY_EVENTS_SECRET',
+  'REDIS_URL',
 ] as const;
 
 class EnvReader {
@@ -108,6 +117,15 @@ class EnvReader {
     }
     return value.replace(/\/+$/, '');
   }
+
+  redisUrl(name: string): string | undefined {
+    const value = this.optional(name);
+    if (value !== undefined && !/^rediss?:\/\/[^\s]+$/.test(value)) {
+      this.problems.push(`${name} must be a redis:// or rediss:// URL`);
+      return undefined;
+    }
+    return value;
+  }
 }
 
 const MAX_CENTS = 1_000_000_000_00;
@@ -131,6 +149,7 @@ export function parseConfig(env: Env): Result<AppConfig, string[]> {
       'TRUST_PROXY',
       read.optional('AWS_LAMBDA_FUNCTION_NAME') !== undefined,
     ),
+    rateLimitPerMinute: read.integer('RATE_LIMIT_PER_MINUTE', 60, 1, 100_000),
     aws: {
       region: read.optional('AWS_REGION') ?? 'us-east-1',
       dynamoEndpoint: read.httpUrl('DYNAMODB_ENDPOINT', false),
@@ -144,6 +163,11 @@ export function parseConfig(env: Env): Result<AppConfig, string[]> {
     fees: {
       baseFeeInCents: read.integer('BASE_FEE_IN_CENTS', 250_000, 0, MAX_CENTS),
       deliveryFeeInCents: read.integer('DELIVERY_FEE_IN_CENTS', 800_000, 0, MAX_CENTS),
+    },
+    cache: {
+      redisUrl: read.redisUrl('REDIS_URL'),
+      catalogueTtlSeconds: read.integer('CACHE_TTL_CATALOGUE_SECONDS', 60, 1, 3600),
+      reportsTtlSeconds: read.integer('CACHE_TTL_REPORTS_SECONDS', 30, 1, 3600),
     },
     gateway: {
       baseUrl: read.httpUrl('PAYMENT_GATEWAY_BASE_URL', true) ?? '',
@@ -206,7 +230,7 @@ export async function loadConfig(env: Env, fetchSecrets: SecretFetcher): Promise
   try {
     resolved = await resolveSecrets(env, fetchSecrets);
   } catch {
-    throw new ConfigurationError(['gateway secrets could not be read from the parameter store']);
+    throw new ConfigurationError(['secrets could not be read from the parameter store']);
   }
   return parseConfig(resolved).match(
     (config) => config,

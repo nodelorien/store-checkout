@@ -42,6 +42,13 @@ export default tseslint.config(
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   {
+    // k6 scripts run in k6's own runtime, not in Node.
+    files: ['load-tests/*.js', 'load-tests/lib/*.js'],
+    languageOptions: {
+      globals: { __ENV: 'readonly', __VU: 'readonly', __ITER: 'readonly' },
+    },
+  },
+  {
     files: ['**/scripts/**', '**/seed/**'],
     rules: { 'no-console': 'off' },
   },

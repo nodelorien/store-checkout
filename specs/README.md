@@ -57,6 +57,8 @@ Ordered by dependency and by rubric value (PRD §7). Each row becomes a spec fol
 | 020 | `order-tracking-and-installments` — instalments in the summary, order journey and address correction, next steps after a failed payment, copy/print receipt | frontend | FR-07, FR-09, FR-10, FR-12 | Done |
 | 021 | `catalogue-pagination` — 18 products, `GET /products` paging/search/order, endless list on phones and numbered pages on wide screens | backend, frontend | FR-01, FR-12, NFR-01 | Done |
 | 022 | `account-and-insights` — signed-in header and account menu, My orders on the device, `GET /reports/summary`, Insights with three chart reports | backend, frontend | FR-10, FR-12, NFR-05 | Done |
+| 023 | `redis-cache` — optional Redis cache-aside for the catalogue and the sales read, invalidated on approval, fail-open; configurable rate limit | backend, infra | FR-01, FR-12, NFR-02, NFR-05 | Done |
+| 024 | `integration-and-load-tests` — API integration tests against DynamoDB Local and Redis, k6 load tests with recorded results, README rewrite | backend, infra, docs | NFR-03, NFR-09, NFR-10, FR-13 | Done |
 
 Critical path if time runs short: 001 → 002 → 003 → 005 → 006 → 009 → 010 → 011 → 012 → 013 → 015 → 016.
 004 and 007 are small and can be folded into 006's PR; 008 is optional; 014 can be partially delivered inside 009/013.

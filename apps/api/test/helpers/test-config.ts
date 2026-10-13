@@ -24,6 +24,7 @@ export function testConfig(overrides: Partial<AppConfig> = {}): AppConfig {
     logLevel: 'error',
     corsOrigins: [],
     trustProxy: false,
+    rateLimitPerMinute: 60,
     aws: { region: 'us-east-1', dynamoEndpoint: 'http://localhost:8000' },
     tables: {
       products: 'test-products',
@@ -32,6 +33,7 @@ export function testConfig(overrides: Partial<AppConfig> = {}): AppConfig {
       deliveries: 'test-deliveries',
     },
     fees: { baseFeeInCents: 250_000, deliveryFeeInCents: 800_000 },
+    cache: { redisUrl: undefined, catalogueTtlSeconds: 60, reportsTtlSeconds: 30 },
     gateway: {
       baseUrl: 'https://gateway.test/v1',
       publicKey: 'pub_test_key',
